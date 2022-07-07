@@ -94,6 +94,16 @@ ff_matches_22 %>%
 ```
 
 
+```{r}
+ff_matchups_1722 <- ff_1722 %>% 
+  distinct(year, week, team_manager, team_away_manager, team_score, team_away_score, is_playoff_match) %>% 
+  mutate(win = team_score >= team_away_score,
+         loss = team_score < team_away_score)
+
+ff_matchups_1722 %>% write_csv("data/ff-matchups-2017-2022.csv")
+```
+
+
 
 
 

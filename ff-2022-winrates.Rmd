@@ -1,0 +1,111 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+matches <- read_csv("data/ff-matchups-2017-2022.csv")
+
+owners_of_22 <- c("Hubner", "Bauer", "Ha", "Heim", "Daniel", "Markus", "Patrick", "Speasy", "Stumpf", "Marc")
+```
+
+```{r}
+manager_wr <- matches %>% 
+  #filter(!is_playoff_match) %>% 
+  group_by(year, team_manager) %>% 
+  summarise(n = n(),
+            win = sum(win),
+            loss = sum(loss)) %>% 
+  ungroup() %>% 
+  mutate(win_rate = win/n) %>% 
+  group_by(team_manager) %>% 
+  mutate(total_games = sum(n),
+         total_wins = sum(win),
+         total_winrate = total_wins/total_games) %>% 
+  ungroup()
+```
+
+```{r}
+manager_wr_total <- manager_wr %>% 
+  distinct(team_manager, n=total_games, win=total_wins,loss=total_games-total_wins, win_rate=total_winrate) %>% 
+  mutate(year = "Gesamt")
+```
+
+```{r}
+manager_wr %>% 
+  mutate(year = as.character(year)) %>% 
+  bind_rows(manager_wr_total) %>% 
+  filter(team_manager %in% owners_of_22) %>% 
+  pivot_wider(id_cols = team_manager, names_from = year, values_from = win_rate) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  fmt_percent(2:7) %>% 
+  fmt_missing(everything(), missing_text = "-") %>% 
+  gt_hulk_col_numeric(2:7, trim = T, na.color = "white") %>% 
+  cols_label(
+    team_manager = "Manager"
+  ) %>% 
+  tab_header("Winrate nach Jahr",
+             subtitle = "für Manager der Season '22")
+```
+
+```{r}
+# Nicht so schön aber passt schon
+
+manager_wr %>% 
+  mutate(year = as.character(year)) %>% 
+  bind_rows(manager_wr_total) %>% 
+  filter(team_manager %in% owners_of_22) %>% 
+  mutate(label = str_glue("-")) %>% 
+  pivot_wider(id_cols = team_manager, names_from = year, values_from = c(win,label,loss)) %>% 
+  select(team_manager,
+         win_2017, label_2017, loss_2017,
+         win_2018, label_2018, loss_2018,
+         win_2019, label_2019, loss_2019,
+         win_2020, label_2020, loss_2020,
+         win_2021, label_2021, loss_2021,
+         win_Gesamt, label_Gesamt, loss_Gesamt
+         ) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  #fmt_percent(2:7) %>% 
+  fmt_missing(everything(), missing_text = "-") %>% 
+  #gt_hulk_col_numeric(2:7, trim = T, na.color = "white") %>% 
+  cols_label(
+    team_manager = "Manager",
+    win_2017 = "", label_2017 = "", loss_2017 = "",
+    win_2018 = "", label_2018 = "", loss_2018 = "",
+    win_2019 = "", label_2019 = "", loss_2019 = "",
+    win_2020 = "", label_2020 = "", loss_2020 = "",
+    win_2021 = "", label_2021 = "", loss_2021 = "",
+    win_Gesamt = "", label_Gesamt = "", loss_Gesamt = ""
+  ) %>% 
+  tab_spanner("2017", 2:4) %>% 
+  tab_spanner("2018", 5:7) %>% 
+  tab_spanner("2019", 8:10) %>% 
+  tab_spanner("2020", 11:13) %>% 
+  tab_spanner("2021", 14:16) %>% 
+  tab_spanner("Gesamt", 17:19) %>% 
+  cols_align(align = "center", columns = everything()) %>% 
+  cols_align(align = "left", columns = team_manager)
+```
+
+

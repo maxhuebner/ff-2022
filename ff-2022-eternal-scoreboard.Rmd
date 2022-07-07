@@ -109,6 +109,8 @@ manager_scoreboard %>%
 ```
 
 ```{r}
+fill_owner <- crossing(home = owners_of_22, away = owners_of_22, total_games = 0, win = 0, loss = 0, label = NA)
+
 gt_scoreboard <- . %>% 
   filter(home %in% owners_of_22,
          away %in% owners_of_22) %>% 
@@ -141,28 +143,6 @@ gt_scoreboard <- . %>%
       locations = cells_title(groups = "title")
     )
 ```
-
-```{r}
-fill_owner <- crossing(home = owners_of_22, away = owners_of_22, total_games = 0, win = 0, loss = 0, label = NA)
-
-manager_scoreboard_playoff %>% 
-  filter(home %in% owners_of_22,
-         away %in% owners_of_22) %>% 
-  arrange(home) %>% #View()
-  mutate(label = str_glue("<span style='color:{color_code}'>**{score_string}**</span>"),
-         all_color = ifelse(all_win >= all_loss, "#00A86B", "#BE1F35"),
-         all_score_string = str_glue("<span style='color:{all_color}'>**{all_score_string}**</span>")) %>% 
-  bind_rows(fill_owner) %>% 
-  group_by(home) %>% 
-  distinct(home,away, .keep_all = T) %>% 
-  fill(all_win, .direction = "updown") %>% 
-  fill(all_loss, .direction = "updown") %>% 
-  fill(all_score_string, .direction = "updown") %>% 
-  ungroup() %>% 
-  arrange(home, away) %>%
-  pivot_wider(id_cols = c(home, all_score_string), names_from = away, values_from = label) %>% View()
-```
-
 
 ```{r}
 gt_es <- manager_scoreboard %>% 
