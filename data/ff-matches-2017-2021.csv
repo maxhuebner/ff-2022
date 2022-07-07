@@ -1,0 +1,289 @@
+year,week,team_winner,manager_winner,team_loser,manager_loser,score_winner,score_loser
+2017,1,Le'Veon A Prayer,Hubner,Kung Suh Panda,Tobsenheimi,103.32,56.84
+2017,1,Rui's Crew,Patrick,Suit Up,Files,78.02,76.74
+2017,1,Die EXperten,Markus,Leschke-Ultras,Walter,106.48,75.54
+2017,1,The Manning Faced God,Bauer,Goldcity,Hagen,92.1,77.38
+2017,2,Le'Veon A Prayer,Hubner,Suit Up,Files,93.38,86.56
+2017,2,Rui's Crew,Patrick,Goldcity,Hagen,98.04,88.2
+2017,2,Leschke-Ultras,Walter,Kung Suh Panda,Tobsenheimi,92.08,80.62
+2017,2,The Manning Faced God,Bauer,Die EXperten,Markus,117.66,85.08
+2017,3,Le'Veon A Prayer,Hubner,Leschke-Ultras,Walter,95.46,69.66
+2017,3,Suit Up,Files,Die EXperten,Markus,86.32,82.66
+2017,3,Goldcity,Hagen,Kung Suh Panda,Tobsenheimi,100.12,62.22
+2017,3,The Manning Faced God,Bauer,Rui's Crew,Patrick,96.1,78.8
+2017,4,Le'Veon A Prayer,Hubner,The Manning Faced God,Bauer,150.78,84.48
+2017,4,Goldcity,Hagen,Suit Up,Files,90.38,88.68
+2017,4,Rui's Crew,Patrick,Leschke-Ultras,Walter,134.62,97.2
+2017,4,Die EXperten,Markus,Kung Suh Panda,Tobsenheimi,89.66,70.06
+2017,5,Le'Veon A Prayer,Hubner,Rui's Crew,Patrick,108.54,45.68
+2017,5,Suit Up,Files,Leschke-Ultras,Walter,135.96,79.22
+2017,5,The Manning Faced God,Bauer,Kung Suh Panda,Tobsenheimi,98.74,87.14
+2017,5,Die EXperten,Markus,Goldcity,Hagen,86.86,73.12
+2017,6,Le'Veon A Prayer,Hubner,Die EXperten,Markus,119.3,110.68
+2017,6,Kung Suh Panda,Tobsenheimi,Rui's Crew,Patrick,94.42,83.44
+2017,6,Leschke-Ultras,Walter,Goldcity,Hagen,80.22,66.58
+2017,6,The Manning Faced God,Bauer,Suit Up,Files,117.2,97.84
+2017,7,Goldcity,Hagen,Le'Veon A Prayer,Hubner,85.66,78.74
+2017,7,Kung Suh Panda,Tobsenheimi,Suit Up,Files,103.58,64.62
+2017,7,Leschke-Ultras,Walter,The Manning Faced God,Bauer,83.52,65.06
+2017,7,Die EXperten,Markus,Rui's Crew,Patrick,112.62,112.24
+2017,8,Le'Veon A Prayer,Hubner,Rui's Crew,Patrick,118.08,79.58
+2017,8,Kung Suh Panda,Tobsenheimi,The Manning Faced God,Bauer,104.02,67.92
+2017,8,Leschke-Ultras,Walter,Goldcity,Hagen,94.98,92.42
+2017,8,Die EXperten,Markus,Suit Up,Files,131.64,80.9
+2017,9,Le'Veon A Prayer,Hubner,Kung Suh Panda,Tobsenheimi,100.7,80.44
+2017,9,Leschke-Ultras,Walter,Suit Up,Files,66.98,57.18
+2017,9,The Manning Faced God,Bauer,Die EXperten,Markus,103.76,98.12
+2017,9,Rui's Crew,Patrick,Goldcity,Hagen,116.82,94.5
+2017,10,Le'Veon A Prayer,Hubner,Suit Up,Files,115.66,51.96
+2017,10,Kung Suh Panda,Tobsenheimi,Leschke-Ultras,Walter,104.76,80.02
+2017,10,Die EXperten,Markus,Goldcity,Hagen,93.36,77.74
+2017,10,Rui's Crew,Patrick,The Manning Faced God,Bauer,146.6,73.14
+2017,11,Die EXperten,Markus,Le'Veon A Prayer,Hubner,161.12,130.56
+2017,11,Goldcity,Hagen,Kung Suh Panda,Tobsenheimi,104.2,67.16
+2017,11,Leschke-Ultras,Walter,Rui's Crew,Patrick,114.02,89.3
+2017,11,The Manning Faced God,Bauer,Suit Up,Files,105.78,93.94
+2017,12,Le'Veon A Prayer,Hubner,Goldcity,Hagen,122.12,72.68
+2017,12,Kung Suh Panda,Tobsenheimi,Suit Up,Files,104.2,49.46
+2017,12,Die EXperten,Markus,Rui's Crew,Patrick,132.28,118.76
+2017,12,The Manning Faced God,Bauer,Leschke-Ultras,Walter,108.68,78.42
+2017,13,Le'Veon A Prayer,Hubner,The Manning Faced God,Bauer,104.72,88.96
+2017,13,Leschke-Ultras,Walter,Die EXperten,Markus,95.68,89.32
+2017,13,Suit Up,Files,Goldcity,Hagen,112.6,61.12
+2017,13,Rui's Crew,Patrick,Kung Suh Panda,Tobsenheimi,121.3,117.82
+2017,14,Rui's Crew,Patrick,Leschke-Ultras,Walter,87.52,82.84
+2017,14,Die EXperten,Markus,Kung Suh Panda,Tobsenheimi,118.14,110.86
+2017,15,Rui's Crew,Patrick,Le'Veon A Prayer,Hubner,129.5,120.68
+2017,15,The Manning Faced God,Bauer,Die EXperten,Markus,109.98,99.84
+2017,16,Le'Veon A Prayer,Hubner,Die EXperten,Markus,111.7,66.26
+2017,16,Suit Up,Files,Goldcity,Hagen,99.54,89.26
+2017,16,Rui's Crew,Patrick,The Manning Faced God,Bauer,97.16,94
+2017,16,Leschke-Ultras,Walter,Kung Suh Panda,Tobsenheimi,92.12,75.94
+2018,1,Unlimited Power,Hubner,DJ-CMC,Tobsenheimi,122.66,108.24
+2018,1,RoadToGlory,Andi,Frodo's Homos,Bauer,116.54,115.54
+2018,1,Leschke-Ultras,Walter,Rui's Crew,Patrick,127.36,122.02
+2018,1,mod s0beit,Simon,Master of Disaster,Stumpf,89.96,80.34
+2018,1,Goldcity,Hagen,Die EXperten,Markus,109.14,101.08
+2018,2,Die EXperten,Markus,Unlimited Power,Hubner,160.96,137.36
+2018,2,Frodo's Homos,Bauer,Leschke-Ultras,Walter,121.58,112.9
+2018,2,DJ-CMC,Tobsenheimi,Master of Disaster,Stumpf,92.94,81.98
+2018,2,RoadToGlory,Andi,mod s0beit,Simon,116.92,91.72
+2018,2,Goldcity,Hagen,Rui's Crew,Patrick,111.04,104.94
+2018,3,Rui's Crew,Patrick,Unlimited Power,Hubner,107.98,105.56
+2018,3,Master of Disaster,Stumpf,Die EXperten,Markus,109.6,92.62
+2018,3,mod s0beit,Simon,Frodo's Homos,Bauer,120.44,117.12
+2018,3,Leschke-Ultras,Walter,Goldcity,Hagen,83.74,68.2
+2018,3,DJ-CMC,Tobsenheimi,RoadToGlory,Andi,103.3,87.3
+2018,4,Unlimited Power,Hubner,Leschke-Ultras,Walter,151.46,120.96
+2018,4,Goldcity,Hagen,mod s0beit,Simon,97.62,88.18
+2018,4,Master of Disaster,Stumpf,RoadToGlory,Andi,167.4,81.9
+2018,4,Rui's Crew,Patrick,Die EXperten,Markus,124.74,104.26
+2018,4,Frodo's Homos,Bauer,DJ-CMC,Tobsenheimi,145.16,96.72
+2018,5,Unlimited Power,Hubner,Goldcity,Hagen,127.42,113.54
+2018,5,RoadToGlory,Andi,Rui's Crew,Patrick,108.58,72.24
+2018,5,DJ-CMC,Tobsenheimi,mod s0beit,Simon,123.48,97.32
+2018,5,Master of Disaster,Stumpf,Frodo's Homos,Bauer,144.5,124.7
+2018,5,Die EXperten,Markus,Leschke-Ultras,Walter,124.74,110.38
+2018,6,Unlimited Power,Hubner,Frodo's Homos,Bauer,140.68,116.66
+2018,6,Leschke-Ultras,Walter,Master of Disaster,Stumpf,125.9,64.78
+2018,6,Die EXperten,Markus,mod s0beit,Simon,132,114.1
+2018,6,Goldcity,Hagen,RoadToGlory,Andi,143.72,101.1
+2018,6,DJ-CMC,Tobsenheimi,Rui's Crew,Patrick,123.8,108.98
+2018,7,Unlimited Power,Hubner,Master of Disaster,Stumpf,116.22,111.76
+2018,7,Leschke-Ultras,Walter,mod s0beit,Simon,146.36,76.2
+2018,7,Die EXperten,Markus,RoadToGlory,Andi,144.48,108.86
+2018,7,DJ-CMC,Tobsenheimi,Goldcity,Hagen,119.42,114.3
+2018,7,Rui's Crew,Patrick,Frodo's Homos,Bauer,123.78,88.32
+2018,8,Unlimited Power,Hubner,mod s0beit,Simon,138.02,75.54
+2018,8,RoadToGlory,Andi,Leschke-Ultras,Walter,146.76,129.26
+2018,8,DJ-CMC,Tobsenheimi,Die EXperten,Markus,122.9,111.26
+2018,8,Goldcity,Hagen,Frodo's Homos,Bauer,113.94,110.38
+2018,8,Master of Disaster,Stumpf,Rui's Crew,Patrick,123.06,108.7
+2018,9,Unlimited Power,Hubner,RoadToGlory,Andi,142.88,52.28
+2018,9,DJ-CMC,Tobsenheimi,mod s0beit,Simon,103.86,80.3
+2018,9,Rui's Crew,Patrick,Leschke-Ultras,Walter,153.34,117.36
+2018,9,Master of Disaster,Stumpf,Frodo's Homos,Bauer,131.42,100.96
+2018,9,Die EXperten,Markus,Goldcity,Hagen,115.86,87.62
+2018,10,Die EXperten,Markus,Unlimited Power,Hubner,140.74,135.2
+2018,10,DJ-CMC,Tobsenheimi,Leschke-Ultras,Walter,120.66,111.3
+2018,10,Frodo's Homos,Bauer,RoadToGlory,Andi,148.82,80.42
+2018,10,Master of Disaster,Stumpf,mod s0beit,Simon,93.1,89.8
+2018,10,Goldcity,Hagen,Rui's Crew,Patrick,145.3,135.92
+2018,11,Unlimited Power,Hubner,Rui's Crew,Patrick,159.22,143.42
+2018,11,Frodo's Homos,Bauer,Die EXperten,Markus,160.26,85.38
+2018,11,DJ-CMC,Tobsenheimi,Master of Disaster,Stumpf,125.58,90.52
+2018,11,Leschke-Ultras,Walter,Goldcity,Hagen,129.74,51.94
+2018,11,mod s0beit,Simon,RoadToGlory,Andi,130.92,108.28
+2018,12,Unlimited Power,Hubner,Leschke-Ultras,Walter,129.02,121.88
+2018,12,Goldcity,Hagen,Master of Disaster,Stumpf,108.22,106.72
+2018,12,Frodo's Homos,Bauer,mod s0beit,Simon,131.38,81.44
+2018,12,Die EXperten,Markus,Rui's Crew,Patrick,147.42,94.16
+2018,12,RoadToGlory,Andi,DJ-CMC,Tobsenheimi,115.54,115.32
+2018,13,Unlimited Power,Hubner,Goldcity,Hagen,121.6,64.14
+2018,13,mod s0beit,Simon,Rui's Crew,Patrick,90.28,86.28
+2018,13,RoadToGlory,Andi,Master of Disaster,Stumpf,152.24,91.12
+2018,13,DJ-CMC,Tobsenheimi,Frodo's Homos,Bauer,118.22,108.44
+2018,13,Die EXperten,Markus,Leschke-Ultras,Walter,117.14,91.1
+2018,14,Master of Disaster,Stumpf,Goldcity,Hagen,111.78,50.52
+2018,14,Die EXperten,Markus,RoadToGlory,Andi,139.22,95.8
+2018,15,Unlimited Power,Hubner,Master of Disaster,Stumpf,117.12,92.28
+2018,15,Frodo's Homos,Bauer,mod s0beit,Simon,84.5,56.52
+2018,15,Rui's Crew,Patrick,Leschke-Ultras,Walter,112.86,105.94
+2018,15,DJ-CMC,Tobsenheimi,Die EXperten,Markus,102.96,98.96
+2018,16,DJ-CMC,Tobsenheimi,Unlimited Power,Hubner,119.68,116.92
+2018,16,Frodo's Homos,Bauer,Rui's Crew,Patrick,136.8,83.94
+2018,16,Leschke-Ultras,Walter,mod s0beit,Simon,113.46,49.14
+2018,16,Master of Disaster,Stumpf,Die EXperten,Markus,126.68,101.06
+2018,16,RoadToGlory,Andi,Goldcity,Hagen,87.2,65.8
+2019,1,Angst Potter,Hubner,Master of Disaster,Stumpf,157.46,112.64
+2019,1,N'Keal and the Hyde B Fitz,Ha,Goldcity,Hagen,138.02,120.24
+2019,1,Rui's Crew,Patrick,Big Dick Nick,Tobsenheimi,103.4,76.12
+2019,1,Die EXperten,Markus,I dont feel so good,Bauer,115.76,109.22
+2019,1,White Broncos,Malte,Sportfreunde Speasy,Speasy,173.52,107.8
+2019,2,I dont feel so good,Bauer,Angst Potter,Hubner,169.44,90.68
+2019,2,Big Dick Nick,Tobsenheimi,Master of Disaster,Stumpf,127.66,78.72
+2019,2,Die EXperten,Markus,N'Keal and the Hyde B Fitz,Ha,130.96,114.26
+2019,2,Goldcity,Hagen,White Broncos,Malte,128.2,126.02
+2019,2,Rui's Crew,Patrick,Sportfreunde Speasy,Speasy,112.12,82.1
+2019,3,Angst Potter,Hubner,N'Keal and the Hyde B Fitz,Ha,134.08,125.14
+2019,3,Die EXperten,Markus,White Broncos,Malte,135.34,132.76
+2019,3,Master of Disaster,Stumpf,I dont feel so good,Bauer,167.42,113.94
+2019,3,Sportfreunde Speasy,Speasy,Big Dick Nick,Tobsenheimi,133.4,94.2
+2019,3,Goldcity,Hagen,Rui's Crew,Patrick,125.06,95.92
+2019,4,Angst Potter,Hubner,Die EXperten,Markus,115.68,109.72
+2019,4,I dont feel so good,Bauer,Sportfreunde Speasy,Speasy,153.4,104.1
+2019,4,White Broncos,Malte,Rui's Crew,Patrick,117.8,88.3
+2019,4,Master of Disaster,Stumpf,N'Keal and the Hyde B Fitz,Ha,139.5,109.1
+2019,4,Big Dick Nick,Tobsenheimi,Goldcity,Hagen,111.78,96.68
+2019,5,Rui's Crew,Patrick,Angst Potter,Hubner,100.78,98.06
+2019,5,N'Keal and the Hyde B Fitz,Ha,I dont feel so good,Bauer,155.54,101.06
+2019,5,Goldcity,Hagen,Sportfreunde Speasy,Speasy,178.8,177.02
+2019,5,Die EXperten,Markus,Master of Disaster,Stumpf,164.82,136.46
+2019,5,Big Dick Nick,Tobsenheimi,White Broncos,Malte,123.02,88.54
+2019,6,Sportfreunde Speasy,Speasy,Angst Potter,Hubner,109.06,105.34
+2019,6,Goldcity,Hagen,Master of Disaster,Stumpf,114.54,108.9
+2019,6,Die EXperten,Markus,Big Dick Nick,Tobsenheimi,116.22,101.32
+2019,6,I dont feel so good,Bauer,White Broncos,Malte,131.64,112.32
+2019,6,N'Keal and the Hyde B Fitz,Ha,Rui's Crew,Patrick,155.9,86.54
+2019,7,Angst Potter,Hubner,White Broncos,Malte,81.92,59.56
+2019,7,Die EXperten,Markus,Goldcity,Hagen,100.96,79.06
+2019,7,Big Dick Nick,Tobsenheimi,I dont feel so good,Bauer,157.16,131.74
+2019,7,N'Keal and the Hyde B Fitz,Ha,Sportfreunde Speasy,Speasy,124.94,80.46
+2019,7,Rui's Crew,Patrick,Master of Disaster,Stumpf,103.82,93.48
+2019,8,Big Dick Nick,Tobsenheimi,Angst Potter,Hubner,157.6,109.96
+2019,8,I dont feel so good,Bauer,Goldcity,Hagen,175.68,140.2
+2019,8,N'Keal and the Hyde B Fitz,Ha,White Broncos,Malte,121.56,88.6
+2019,8,Master of Disaster,Stumpf,Sportfreunde Speasy,Speasy,157.04,104.46
+2019,8,Die EXperten,Markus,Rui's Crew,Patrick,113,85.72
+2019,9,Angst Potter,Hubner,Goldcity,Hagen,129.42,100.68
+2019,9,N'Keal and the Hyde B Fitz,Ha,I dont feel so good,Bauer,141.82,128.94
+2019,9,Rui's Crew,Patrick,Big Dick Nick,Tobsenheimi,129.9,87.64
+2019,9,Die EXperten,Markus,Master of Disaster,Stumpf,128.78,72.3
+2019,9,Sportfreunde Speasy,Speasy,White Broncos,Malte,166.8,139.24
+2019,10,Angst Potter,Hubner,Master of Disaster,Stumpf,137.32,97.02
+2019,10,N'Keal and the Hyde B Fitz,Ha,Big Dick Nick,Tobsenheimi,168.28,126.32
+2019,10,Goldcity,Hagen,White Broncos,Malte,127.28,118.66
+2019,10,Die EXperten,Markus,I dont feel so good,Bauer,142.48,116.14
+2019,10,Sportfreunde Speasy,Speasy,Rui's Crew,Patrick,103.38,76.98
+2019,11,Angst Potter,Hubner,I dont feel so good,Bauer,142.08,127.54
+2019,11,White Broncos,Malte,Master of Disaster,Stumpf,109.4,66.82
+2019,11,N'Keal and the Hyde B Fitz,Ha,Die EXperten,Markus,107.66,102.78
+2019,11,Big Dick Nick,Tobsenheimi,Sportfreunde Speasy,Speasy,146.34,120.64
+2019,11,Rui's Crew,Patrick,Goldcity,Hagen,117.62,87.34
+2019,12,Angst Potter,Hubner,N'Keal and the Hyde B Fitz,Ha,132.36,120.1
+2019,12,Sportfreunde Speasy,Speasy,Die EXperten,Markus,137.2,74.78
+2019,12,Master of Disaster,Stumpf,I dont feel so good,Bauer,109.72,108.08
+2019,12,White Broncos,Malte,Rui's Crew,Patrick,128.7,72.54
+2019,12,Goldcity,Hagen,Big Dick Nick,Tobsenheimi,86.74,79.38
+2019,13,Angst Potter,Hubner,Die EXperten,Markus,130.3,109.84
+2019,13,Rui's Crew,Patrick,I dont feel so good,Bauer,111.16,104.32
+2019,13,Sportfreunde Speasy,Speasy,Goldcity,Hagen,108.54,92.68
+2019,13,N'Keal and the Hyde B Fitz,Ha,Master of Disaster,Stumpf,121.4,110.02
+2019,13,Big Dick Nick,Tobsenheimi,White Broncos,Malte,100.92,80.04
+2019,14,Angst Potter,Hubner,Sportfreunde Speasy,Speasy,132.8,114.66
+2019,14,Rui's Crew,Patrick,Die EXperten,Markus,156.92,93.68
+2019,15,Angst Potter,Hubner,Big Dick Nick,Tobsenheimi,136.58,106.76
+2019,15,Goldcity,Hagen,Master of Disaster,Stumpf,158.9,93.32
+2019,15,I dont feel so good,Bauer,White Broncos,Malte,181.48,109.5
+2019,15,Rui's Crew,Patrick,N'Keal and the Hyde B Fitz,Ha,158.68,134.12
+2019,16,Angst Potter,Hubner,Rui's Crew,Patrick,133.72,122.26
+2019,16,Goldcity,Hagen,I dont feel so good,Bauer,160.56,153.76
+2019,16,Master of Disaster,Stumpf,White Broncos,Malte,87.1,82.94
+2019,16,Big Dick Nick,Tobsenheimi,N'Keal and the Hyde B Fitz,Ha,127.58,101.86
+2019,16,Sportfreunde Speasy,Speasy,Die EXperten,Markus,151.66,78.5
+2020,1,TheRealBauer,Bauer,Hubner,Hubner,134.9,110.1
+2020,1,seb44,Hagen,MarkusEXperte,Markus,132.8,120.04
+2020,1,MKx,Marc,StumpfistTrumpf,Stumpf,154.18,125.36
+2020,1,AllTimeReadyPat,Patrick,Hammichan,Ha,112.44,111.76
+2020,1,Speasy,Speasy,Blitzkoerper85,Tobsenheimi,144.5,124.78
+2020,2,TheRealBauer,Bauer,Hammichan,Ha,136.34,100.58
+2020,2,Hubner,Hubner,Speasy,Speasy,138.06,136.42
+2020,2,Blitzkoerper85,Tobsenheimi,MarkusEXperte,Markus,152.2,129.18
+2020,2,AllTimeReadyPat,Patrick,MKx,Marc,171.3,140.22
+2020,2,StumpfistTrumpf,Stumpf,seb44,Hagen,124.8,98.48
+2020,3,TheRealBauer,Bauer,AllTimeReadyPat,Patrick,122.5,108.18
+2020,3,Hubner,Hubner,StumpfistTrumpf,Stumpf,158.88,96.22
+2020,3,MarkusEXperte,Markus,MKx,Marc,149,141.4
+2020,3,Speasy,Speasy,Hammichan,Ha,160.52,78.44
+2020,3,seb44,Hagen,Blitzkoerper85,Tobsenheimi,140.62,131.34
+2020,4,TheRealBauer,Bauer,Speasy,Speasy,146.72,106.8
+2020,4,AllTimeReadyPat,Patrick,Hubner,Hubner,132.68,114.82
+2020,4,StumpfistTrumpf,Stumpf,MarkusEXperte,Markus,155.38,122.54
+2020,4,MKx,Marc,Blitzkoerper85,Tobsenheimi,132.3,101.42
+2020,4,Hammichan,Ha,seb44,Hagen,111.6,105.54
+2020,5,MarkusEXperte,Markus,TheRealBauer,Bauer,141.8,115.4
+2020,5,Hammichan,Ha,Hubner,Hubner,137.36,122.3
+2020,5,MKx,Marc,seb44,Hagen,128.38,97.5
+2020,5,Blitzkoerper85,Tobsenheimi,StumpfistTrumpf,Stumpf,125.32,118.52
+2020,5,Speasy,Speasy,AllTimeReadyPat,Patrick,140.44,104.96
+2020,6,Hubner,Hubner,TheRealBauer,Bauer,153.94,136.02
+2020,6,MarkusEXperte,Markus,MKx,Marc,122.1,56.28
+2020,6,Speasy,Speasy,Hammichan,Ha,117.04,116.6
+2020,6,AllTimeReadyPat,Patrick,Blitzkoerper85,Tobsenheimi,96.14,87.58
+2020,6,seb44,Hagen,StumpfistTrumpf,Stumpf,193.14,119.9
+2020,7,TheRealBauer,Bauer,Hammichan,Ha,120.8,95.66
+2020,7,Hubner,Hubner,Speasy,Speasy,143.7,97.02
+2020,7,StumpfistTrumpf,Stumpf,MarkusEXperte,Markus,170.52,111.2
+2020,7,Blitzkoerper85,Tobsenheimi,MKx,Marc,163.88,82.72
+2020,7,AllTimeReadyPat,Patrick,seb44,Hagen,124.76,107.7
+2020,8,TheRealBauer,Bauer,Speasy,Speasy,134.76,126.12
+2020,8,MKx,Marc,Hubner,Hubner,104.74,99.52
+2020,8,MarkusEXperte,Markus,seb44,Hagen,207.74,112.32
+2020,8,AllTimeReadyPat,Patrick,Hammichan,Ha,96.36,85.44
+2020,8,StumpfistTrumpf,Stumpf,Blitzkoerper85,Tobsenheimi,103.64,95.86
+2020,9,TheRealBauer,Bauer,AllTimeReadyPat,Patrick,131.82,76.46
+2020,9,Hubner,Hubner,Hammichan,Ha,95.9,92.24
+2020,9,Speasy,Speasy,MarkusEXperte,Markus,173.14,167.48
+2020,9,StumpfistTrumpf,Stumpf,MKx,Marc,116.9,93.1
+2020,9,Blitzkoerper85,Tobsenheimi,seb44,Hagen,119.1,116.78
+2020,10,TheRealBauer,Bauer,StumpfistTrumpf,Stumpf,129.9,84.6
+2020,10,Hubner,Hubner,seb44,Hagen,132.16,67.04
+2020,10,Blitzkoerper85,Tobsenheimi,MarkusEXperte,Markus,142.16,77.48
+2020,10,Hammichan,Ha,MKx,Marc,116.72,76.12
+2020,10,AllTimeReadyPat,Patrick,Speasy,Speasy,157.64,98.68
+2020,11,TheRealBauer,Bauer,Blitzkoerper85,Tobsenheimi,138.16,97.88
+2020,11,Hubner,Hubner,AllTimeReadyPat,Patrick,125.14,83.84
+2020,11,Hammichan,Ha,MarkusEXperte,Markus,159.86,114.52
+2020,11,seb44,Hagen,MKx,Marc,111.76,108.58
+2020,11,Speasy,Speasy,StumpfistTrumpf,Stumpf,119.1,105.64
+2020,12,TheRealBauer,Bauer,MKx,Marc,121.9,83.8
+2020,12,MarkusEXperte,Markus,Hubner,Hubner,213.38,142.82
+2020,12,Hammichan,Ha,Blitzkoerper85,Tobsenheimi,123.12,95.08
+2020,12,seb44,Hagen,Speasy,Speasy,117.24,106.64
+2020,12,AllTimeReadyPat,Patrick,StumpfistTrumpf,Stumpf,101.22,88.44
+2020,13,seb44,Hagen,TheRealBauer,Bauer,97.26,93.52
+2020,13,Hubner,Hubner,Blitzkoerper85,Tobsenheimi,146.88,108.4
+2020,13,MarkusEXperte,Markus,AllTimeReadyPat,Patrick,147.82,134.8
+2020,13,MKx,Marc,Speasy,Speasy,115.22,85.1
+2020,13,StumpfistTrumpf,Stumpf,Hammichan,Ha,170.2,123.84
+2020,14,Speasy,Speasy,Hubner,Hubner,135.6,132.52
+2020,14,MarkusEXperte,Markus,AllTimeReadyPat,Patrick,158.52,85.54
+2020,14,seb44,Hagen,MKx,Marc,120.18,91.54
+2020,14,Blitzkoerper85,Tobsenheimi,Hammichan,Ha,115.22,111.36
+2020,15,Speasy,Speasy,TheRealBauer,Bauer,120.06,116.54
+2020,15,Hubner,Hubner,AllTimeReadyPat,Patrick,124.82,116.2
+2020,15,StumpfistTrumpf,Stumpf,MarkusEXperte,Markus,143.62,140.46
+2020,15,MKx,Marc,Hammichan,Ha,104.44,102.62
+2020,15,Blitzkoerper85,Tobsenheimi,seb44,Hagen,157.16,145.72
+2020,16,TheRealBauer,Bauer,MarkusEXperte,Markus,114.4,91.82
+2020,16,StumpfistTrumpf,Stumpf,Speasy,Speasy,144.64,124.48

@@ -1,0 +1,235 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+matches <- read_csv("data/ff-matches-2017-2022.csv")
+history <- read_csv("data/ff-history-2017-2022.csv")
+```
+
+```{r}
+owners_of_22 <- c("Hubner", "Bauer", "Ha", "Heim", "Daniel", "Markus", "Patrick", "Speasy", "Stumpf", "Marc")
+```
+
+```{r}
+match_list <- history %>% 
+  distinct(year, week, team_manager, team_away_manager, team_score, team_away_score, is_playoff_match)
+```
+
+```{r}
+get_scoreboard_data <- function(match_df) {
+  manager_wl <- match_df %>% 
+    group_by(team_manager, team_away_manager) %>% 
+    summarise(total_games = n(),
+              win = sum(team_score >= team_away_score),
+              loss = sum(team_score < team_away_score)) %>% 
+    mutate(all_win = sum(win),
+           all_loss = sum(loss)) %>% 
+    ungroup()
+  
+  cross_matches <- manager_wl %>% 
+    distinct(team_manager) %>% 
+    mutate(team_away_manager = team_manager,
+           total_games = 0,
+           win = 0,
+           loss = 0) 
+  
+  manager_wl <- manager_wl %>% 
+    bind_rows(cross_matches) %>% 
+    group_by(team_manager) %>% 
+    fill(all_win, .direction = "updown") %>% 
+    fill(all_loss, .direction = "updown") %>% 
+    ungroup()
+  
+  manager_scoreboard <- manager_wl %>% 
+    arrange(team_manager, team_away_manager) %>% 
+    rename(home = team_manager,
+           away = team_away_manager) %>% 
+    mutate(color_code = case_when(
+      total_games == 0 ~ "#CCCCC4",
+      win == loss ~ "#D1E231",
+      win > loss ~ "#00A86B", 
+      win < loss ~ "#BE1F35",
+      TRUE ~ "#FFFFFF"
+    ),
+    home = as.factor(home),
+    away = as.factor(away),
+    score_string = glue::glue("{win} - {loss}"),
+    all_score_string = glue::glue("{all_win} - {all_loss}")
+    )
+  
+  return(manager_scoreboard)
+}
+```
+
+```{r}
+manager_scoreboard <- get_scoreboard_data(match_list)
+manager_scoreboard_playoff <- get_scoreboard_data(match_list %>% filter(is_playoff_match))
+manager_scoreboard_regular <- get_scoreboard_data(match_list %>% filter(!is_playoff_match))
+```
+
+```{r}
+manager_scoreboard %>% 
+  filter(home %in% owners_of_22,
+         away %in% owners_of_22) %>% 
+  ggplot(aes(home,
+             away,
+             fill = color_code,
+             label = score_string) ) +
+  geom_tile(alpha = .7) +
+  geom_text(family = "Roboto", fontface = "bold") +
+  scale_fill_identity() + 
+  #scale_x_discrete(limits = rev(levels(ff_scoreboard$home))) +
+  theme_hubnr() + 
+  labs(title = "Das Ewige Scoreboard",
+       subtitle = "aktive Manager 2017-2022, inclusive Playoffs",
+       x = "Away",
+       y = "Home") + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+```
+
+```{r}
+gt_scoreboard <- . %>% 
+  filter(home %in% owners_of_22,
+         away %in% owners_of_22) %>% 
+  arrange(home) %>% #View()
+  mutate(label = str_glue("<span style='color:{color_code}'>**{score_string}**</span>"),
+         all_color = ifelse(all_win >= all_loss, "#00A86B", "#BE1F35"),
+         all_score_string = str_glue("<span style='color:{all_color}'>**{all_score_string}**</span>")) %>% 
+  bind_rows(fill_owner) %>% 
+  group_by(home) %>% 
+  distinct(home,away, .keep_all = T) %>% 
+  fill(all_win, .direction = "updown") %>% 
+  fill(all_loss, .direction = "updown") %>% 
+  fill(all_score_string, .direction = "updown") %>% 
+  ungroup() %>% 
+  arrange(home, away) %>%
+  pivot_wider(id_cols = c(home, all_score_string), names_from = away, values_from = label) %>% 
+  relocate(all_score_string,.after = last_col()) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  fmt_markdown(everything()) %>% 
+  fmt_missing(everything(), missing_text = "-") %>% 
+  tab_spanner("Away", 2:11) %>% 
+  cols_label(
+    all_score_string = "Gesamt"
+  ) %>% 
+  opt_align_table_header("center") %>% 
+  tab_style(
+      style = cell_text(font = google_font("Chivo"),
+                        weight = 800),
+      locations = cells_title(groups = "title")
+    )
+```
+
+```{r}
+fill_owner <- crossing(home = owners_of_22, away = owners_of_22, total_games = 0, win = 0, loss = 0, label = NA)
+
+manager_scoreboard_playoff %>% 
+  filter(home %in% owners_of_22,
+         away %in% owners_of_22) %>% 
+  arrange(home) %>% #View()
+  mutate(label = str_glue("<span style='color:{color_code}'>**{score_string}**</span>"),
+         all_color = ifelse(all_win >= all_loss, "#00A86B", "#BE1F35"),
+         all_score_string = str_glue("<span style='color:{all_color}'>**{all_score_string}**</span>")) %>% 
+  bind_rows(fill_owner) %>% 
+  group_by(home) %>% 
+  distinct(home,away, .keep_all = T) %>% 
+  fill(all_win, .direction = "updown") %>% 
+  fill(all_loss, .direction = "updown") %>% 
+  fill(all_score_string, .direction = "updown") %>% 
+  ungroup() %>% 
+  arrange(home, away) %>%
+  pivot_wider(id_cols = c(home, all_score_string), names_from = away, values_from = label) %>% View()
+```
+
+
+```{r}
+gt_es <- manager_scoreboard %>% 
+  gt_scoreboard() %>% 
+  tab_header("Die Ewige Tabelle")
+  
+gt_es_playoffs <- manager_scoreboard_playoff %>% 
+  gt_scoreboard() %>% 
+  tab_header("Die Ewige Tabelle: Playoff Edition")
+
+gt_es_regular <- manager_scoreboard_regular %>% 
+  gt_scoreboard() %>% 
+  tab_header("Die Ewige Tabelle: Regular Season")
+```
+
+```{r}
+gtsave_extra(gt_es, "export/eternal-scoreboard-22/eternal_scoreboard_22.png", expand = 0, zoom = 5)
+gtsave_extra(gt_es_playoffs, "export/eternal-scoreboard-22/eternal_scoreboard_playoffs_22.png", expand = 0, zoom = 5)
+gtsave_extra(gt_es_regular, "export/eternal-scoreboard-22/eternal_scoreboard_regular_22.png", expand = 0, zoom = 5)
+```
+
+
+```{r}
+owner_id <- manager_scoreboard %>%
+  group_by(home) %>% 
+  mutate(all_games = sum(total_games)) %>% 
+  ungroup() %>% 
+  arrange(all_games,home) %>% 
+  select(-all_games) %>% 
+  distinct(home) %>% 
+  mutate(nr = row_number())
+
+get_upper_scoreboard <- . %>% 
+  left_join(owner_id, by = "home") %>% 
+  left_join(owner_id, by = c("away" = "home")) %>% 
+  rename(home_nr = nr.x, away_nr = nr.y) %>% 
+  arrange(-home_nr, -away_nr) %>% 
+  filter(home_nr > away_nr) %>% 
+  select(home:all_score_string)
+
+manager_scoreboard_ut <- manager_scoreboard %>% 
+  get_upper_scoreboard()
+
+manager_scoreboard_playoff_ut <- manager_scoreboard_playoff %>% 
+  get_upper_scoreboard()
+
+manager_scoreboard_regular_ut <- manager_scoreboard_regular %>% 
+  get_upper_scoreboard()
+```
+
+
+```{r}
+manager_scoreboard_ut %>% 
+  filter(home %in% owners_of_22,
+         away %in% owners_of_22) %>% 
+  mutate(label = md(str_glue("<span style='color:{color_code}'>**{score_string}**</span>"))) %>% 
+  pivot_wider(id_cols = home, names_from = away, values_from = label) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  fmt_markdown(everything()) %>% 
+  #tab_spanner("Away", 2:19) %>% 
+  tab_header("Die ewige Tabelle",
+             subtitle = "aktive Manager 2017-2022, inclusive Playoffs") %>% 
+  fmt_missing(everything(), missing_text = "-")
+```
+
+
+
+
+

@@ -1,0 +1,111 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+ff_1721 <- read_csv("data/ff-history-2017-2021.csv")
+ff_22_raw <- read_csv("data/ff21.csv") 
+```
+
+```{r}
+team_names <- tribble(
+  ~team, ~team_manager,
+  "TheRealBauer", "Bauer", 
+  "Hubner", "Hubner",        
+  "MarkusEXperte", "Markus", 
+  "MKx", "Marc",            
+  "Hammichan", "Ha",     
+  "Blitzkoerper85", "Heim",
+  "Wolverine88", "Daniel",    
+  "StumpfistTrumpf", "Stumpf",
+  "Speasy", "Speasy",         
+  "AllTimeReadyPat", "Patrick"
+)
+```
+
+```{r}
+ff_22 <- ff_22_raw %>% 
+  rename(team_score = total_score) %>% 
+  left_join(team_names, by = "team") %>% 
+  left_join(team_names, by = c("team_away" = "team")) %>% 
+  rename(team_manager = team_manager.x,
+         team_away_manager = team_manager.y)
+```
+
+
+```{r}
+ff_1722 <- ff_1721 %>% 
+  mutate(team_manager = recode(team_manager, "Tobsenheimi" = "Heim"),
+         team_away_manager = recode(team_away_manager, "Tobsenheimi" = "Heim")) %>% 
+  bind_rows(ff_22) %>%
+  select(-stats) %>% 
+  mutate(is_playoff_match = ifelse(week >= 14, TRUE, FALSE),
+         is_playoff_match = ifelse(year >= 2021 & week == 14, FALSE, is_playoff_match))
+
+ff_1722 %>% write_csv("data/ff-history-2017-2022.csv")
+```
+
+
+```{r}
+ff_m_1721 <- read_csv("data/ff-matches-2017-2021.csv")
+```
+
+```{r}
+ff_matches_22 <- ff_1722 %>% 
+  distinct(year, week, team_manager, team_away_manager, .keep_all = T) %>% 
+  mutate(
+    team_winner = ifelse(team_score >= team_away_score, team, team_away),
+    manager_winner = ifelse(team_score >= team_away_score, team_manager, team_away_manager),
+    team_loser = ifelse(team_score < team_away_score, team, team_away),
+    manager_loser = ifelse(team_score < team_away_score, team_manager, team_away_manager),
+    score_winner = ifelse(team_score >= team_away_score, team_score, team_away_score),
+    score_loser = ifelse(team_score < team_away_score, team_score, team_away_score),
+  ) %>% 
+  distinct(year, week, team_winner, manager_winner, team_loser, manager_loser, score_winner, score_loser, is_playoff_match)
+```
+
+```{r}
+ff_matches_22 %>% write_csv("data/ff-matches-2017-2022.csv")
+```
+
+```{r}
+# Scheinz zu funktionieren
+ff_matches_22 %>% 
+  anti_join(ff_m_1721, by = c("year", "week", "team_winner", "manager_winner", "team_loser", "manager_loser", "score_winner", "score_loser"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
