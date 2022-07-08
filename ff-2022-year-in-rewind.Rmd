@@ -1,0 +1,164 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+#library(emo)
+library(emoji)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+matches <- read_csv("data/ff-matches-2017-2022.csv")
+
+matches21 <- matches %>% 
+  filter(year==2021) %>% 
+  mutate(diff = score_winner - score_loser)
+
+
+matchups <- read_csv("data/ff-matchups-2017-2022.csv") %>% 
+  mutate(diff = team_score - team_away_score)
+
+matchups21 <- matchups %>%
+  filter(year==2021)
+  
+```
+
+```{r}
+owners_of_22 <- c("Hubner", "Bauer", "Ha", "Heim", "Daniel", "Markus", "Patrick", "Speasy", "Stumpf", "Marc")
+```
+
+
+### Extreme Scoring
+
+
+```{r}
+gt_matchups_table <- . %>% 
+  select(-year,-loss) %>% 
+  mutate(
+    #win = ifelse(win, emoji("white_check_mark"), emoji("x")),
+    win = ifelse(win, "Ja", "Nein"),
+    nr = row_number() 
+  ) %>% 
+  relocate(team_manager, .before = team_score) %>% 
+  relocate(diff, .before = is_playoff_match) %>% 
+  relocate(nr, .before = week) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  cols_label(
+    week = "Woche",
+    team_score = "Punkte",
+    team_manager = "Manager",
+    team_away_score = "Punkte",
+    team_away_manager= "Gegner",
+    is_playoff_match = "Playoffs?",
+    win="Win?",
+    diff = "Differenz"
+  ) %>% 
+  cols_align("center", columns = c("is_playoff_match", "win")) %>% 
+  tab_row_group(label = html("<span style='color:#00A86B'>Regular Season</span>"), rows = !is_playoff_match) %>% 
+  tab_options(row_group.default_label = 
+                html("<span style='color:#A30B2E'>Playoffs</span>")) %>% 
+  cols_hide(is_playoff_match) %>% 
+  fmt_number(c("team_score", "team_away_score", "diff")) %>% 
+  gt_hulk_col_numeric(diff, trim = T)
+```
+
+```{r}
+gt_ff22_weakweeks <- matchups21 %>% 
+  arrange(team_score) %>% 
+  head(10) %>% 
+  gt_matchups_table() %>% 
+  tab_header("Die schwächsten Wochenleistungen",
+             subtitle = "Fantasy Season '21 Rewind")
+
+gtsave_extra(gt_ff22_weakweeks, "export/year-in-rewind/gt_ff22_weakweeks.png", zoom = 5, expand = 0)
+gtsave(gt_ff22_weakweeks, "export/year-in-rewind/gt_ff22_weakweeks.png", zoom = 5, expand = 0)
+gt_ff22_weakweeks
+```
+
+Die schwächste Wochenleistung geht an Tobi Heim mit mickrigen 61.54 Punkten. Allerdings muss man anmerken, dass Tobi etwas Pech hat, diesen undankbaren Rekord innezuhaben. In jedem anderen Jahr seit Ligastart gab es mindestens eine schlechtere Wochenleistung.
+
+Zusätzlich haben es Heim und Markus als Einzige geschafft, in einer Woche weniger als die Hälfte der Punkte ihres Gegners zu erzielen.  
+Tobi Heim gelingt diese Leistung sogar zweimal. Damit ist er unter aktiven Manager der Einzige in der Geschichte der Liga, der zweimal weniger als die Hälfte der Punkte seines Gegners erreicht hat (1x: Patrick 2017 Woche 5 vs. Hubner, Bauer 2017 Woche 10 vs Patrick, Ha 2020 Woche 3 vs Speasy, Marc 2020 Woche 6 vs Markus)  
+
+In Woche 13 wurde Heim im "Heimduell" um 98.64 Punḱte geschlagen. Das entspricht dem eindeutigsten Sieg in der Geschichte der Liga (Davor 95.4 Punkte 2020 Woche 8: Hagen 112 vs Markus 208)  
+
+Unter den 10 schwächsten Leistungen war Speasy in Woche 15, also in der KO-Phase, der einzige, der einen Sieg stehlen konnte. In der Geschichte der Liga gab es zwar 6 Matches, bei denen weniger Punkte zum Sieg gereicht haben, die meisten dieser Matches stammen allerdings aus einer Zeit mit anderem Scoring-Format und demnach deutlich weniger durchschnittlichen Punkten. Realistisch betrachtet wurde nur ein Match in der Geschichte der Liga (Hubner 2019 Woche 7 mit 81 Punkten vs Malte mit 59.6) mit weniger Punkten gewonnen.  
+
+Betrachtet man die 35 (~20% aller Leistungen) schlechtesten Wochenleistungen, gibt es nur 2 Manager, Daniel und Hubner, die nicht gelistet sind. Von den 35 Performances sind:
+7x Vertreten: Heim
+5x Vertreten: Markus, Speasy, Stumpf
+4x Vertreten: Ha, Marc
+3x Vertreten: Bauer
+2x Vertreten: Patrick
+
+
+
+```{r}
+# Kann man machen
+matchups21 %>% 
+  arrange(desc(team_score)) %>% 
+  head(15) %>% 
+  gt_matchups_table()
+```
+
+```{r}
+# Kann man machen
+matchups21 %>% 
+  arrange(desc(diff)) %>% 
+  head(10) %>% 
+  gt_matchups_table()
+```
+
+```{r}
+# Kann man machen
+matches21 %>% 
+  arrange(diff) %>% 
+  head(10) %>% 
+  gt() %>% 
+  gt_theme_538()
+
+matchups21 %>% 
+  filter(abs(diff) <= 4.15) %>% 
+  arrange(abs(diff)) %>% 
+  gt() %>% 
+  gt_theme_538()
+```
+
+
+```{r}
+# Eher Nicht so Spannend
+matchups %>% 
+  filter(team_manager %in% owners_of_22) %>% 
+  group_by(year, team_manager) %>% 
+  summarise(diff = mean(diff)) %>% 
+  pivot_wider(id_cols = team_manager, names_from = year, values_from = diff) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  fmt_missing(everything(), missing_text = "-") %>% 
+  fmt_number(2:6, decimals = 2) %>% 
+  gt_hulk_col_numeric(2:6, na.color = "white", trim = T)
+```
+
+```{r}
+matchups %>% 
+  filter(team_manager == "Hubner", year == 2021) %>% 
+  gt_matchups_table()
+```
+
