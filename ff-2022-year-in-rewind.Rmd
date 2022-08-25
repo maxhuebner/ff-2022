@@ -88,7 +88,7 @@ gt_ff22_weakweeks <- matchups21 %>%
              subtitle = "Fantasy Season '21 Rewind")
 
 gtsave_extra(gt_ff22_weakweeks, "export/year-in-rewind/gt_ff22_weakweeks.png", zoom = 5, expand = 0)
-gtsave(gt_ff22_weakweeks, "export/year-in-rewind/gt_ff22_weakweeks.png", zoom = 5, expand = 0)
+#gtsave(gt_ff22_weakweeks, "export/year-in-rewind/gt_ff22_weakweeks.png", zoom = 5, expand = 0)
 gt_ff22_weakweeks
 ```
 
@@ -105,9 +105,22 @@ Betrachtet man die 35 (~20% aller Leistungen) schlechtesten Wochenleistungen, gi
 7x Vertreten: Heim
 5x Vertreten: Markus, Speasy, Stumpf
 4x Vertreten: Ha, Marc
-3x Vertreten: Bauer
+3x Vertreten: Bauer (davon 2x gewonnen, jeweils gegen Ha)
 2x Vertreten: Patrick
 
+
+```{r}
+#Hilfsinfos
+ matchups21 %>% 
+  filter(team_manager == "Heim")
+  arrange(team_score) %>% 
+  head(35) %>% 
+  count(team_manager,win, sort = T) %>% filter(win)
+
+matchups21 %>% 
+  filter(week == 12) %>% 
+  arrange(team_score)
+```
 
 
 ```{r}
@@ -140,6 +153,8 @@ matchups21 %>%
   gt() %>% 
   gt_theme_538()
 ```
+
+TODO -> Die knappesten Matchups
 
 
 ```{r}

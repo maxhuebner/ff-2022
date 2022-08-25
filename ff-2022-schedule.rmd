@@ -1,0 +1,267 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+schedule_raw <- read_csv("data/ff22-scheduletemplate-13weeks.csv")
+```
+
+```{r}
+schedule <- schedule_raw %>% 
+  mutate(week = row_number() %/% 5.0001 + 1)
+```
+
+```{r}
+sched_text <- schedule %>% 
+  mutate(home = parse_number(home),
+         away = parse_number(away),
+         home_div1 = home <= 5,
+         away_div1 = away <= 5,
+         matchup = case_when(
+           home_div1 & away_div1 ~ "Div 1 Matchup",
+           !home_div1 & !away_div1 ~ "Div 2 Matchup",
+           xor(home_div1, away_div1) ~ "Cross",
+           TRUE ~ "FEHLER"
+         ))
+sched_text 
+```
+
+```{r}
+sched_text %>% 
+  filter(str_detect(matchup, "Div 2")) %>% 
+  count(week)
+```
+
+```{r}
+read_csv("data/ff-sleeper-schedule-2021.csv") %>% 
+  mutate(cross = div_home != div_away) %>%
+  count(cross, week) %>% 
+  filter(cross)
+```
+
+```{r}
+raw_schedule <- read_csv("data/ff-sleeper-schedule-2021.csv") %>% 
+  mutate(home = parse_number(matchup),
+         away = parse_number(str_extract(matchup, "[:digit:]+\\)$")),
+         home_div1 = home <= 5,
+         away_div1 = away <= 5,
+         matchup_type = case_when(
+           home_div1 & away_div1 ~ "Div 1 Matchup",
+           !home_div1 & !away_div1 ~ "Div 2 Matchup",
+           xor(home_div1, away_div1) ~ "Cross",
+           TRUE ~ "FEHLER"
+         ))
+```
+
+```{r}
+swap_weeks <- function(df, week1, week2) {
+  diff <- week1 - week2
+  
+  extract_weeks <- df %>% 
+    filter(week == week1 | week == week2) %>% 
+    mutate(week = ifelse(week == week1, week - diff, week + diff))
+  
+  df %>% 
+    filter(week != week1 & week != week2) %>% 
+    bind_rows(extract_weeks) %>% 
+    arrange(week)
+}
+```
+
+```{r}
+schedule_structure <- raw_schedule
+schedule_structure <- swap_weeks(schedule_structure, 6,11)
+schedule_structure <- swap_weeks(schedule_structure, 7,12)
+schedule_structure <- swap_weeks(schedule_structure, 8,13)
+schedule_structure <- swap_weeks(schedule_structure, 10,4)
+schedule_structure <- swap_weeks(schedule_structure, 11,5)
+schedule_structure <- swap_weeks(schedule_structure, 3,10)
+schedule_structure <- swap_weeks(schedule_structure, 11,13)
+schedule_structure <- swap_weeks(schedule_structure, 9,4)
+schedule_structure <- swap_weeks(schedule_structure, 12,13)
+schedule_structure <- swap_weeks(schedule_structure, 11,3)
+schedule_structure <- swap_weeks(schedule_structure, 4,1)
+
+schedule_structure <- swap_weeks(schedule_structure, 13,3)
+```
+
+
+```{r}
+schedule <- schedule_structure %>% 
+  mutate(home = as.character(home),
+         home = recode(home,
+                       "1" = "Heim",
+                       "2" = "Marc",
+                       "3" = "Maiggus",
+                       "4" = "HA!",
+                       "5" = "Daniel",
+                       "6" = "JB",
+                       "7" = "Simon",
+                       "8" = "Hoodie",
+                       "9" = "Stumpfi",
+                       "10" = "Rui"
+                       ),
+         away = recode(away,
+                       "1" = "Heim",
+                       "2" = "Marc",
+                       "3" = "Maiggus",
+                       "4" = "HA!",
+                       "5" = "Daniel",
+                       "6" = "JB",
+                       "7" = "Simon",
+                       "8" = "Hoodie",
+                       "9" = "Stumpfi",
+                       "10" = "Rui"
+                       )) %>% 
+  mutate(match_string = str_glue("{home} vs {away}"))
+```
+
+```{r}
+schedule <- schedule_structure %>% 
+  mutate(home = as.character(home),
+         home = recode(home,
+                       "1" = "Heim",
+                       "2" = "Marc",
+                       "3" = "Markus",
+                       "4" = "Ha",
+                       "5" = "Daniel",
+                       "6" = "Bauer",
+                       "7" = "Speasy",
+                       "8" = "Hubner",
+                       "9" = "Stumpf",
+                       "10" = "Patrick"
+                       ),
+         away = recode(away,
+                       "1" = "Heim",
+                       "2" = "Marc",
+                       "3" = "Markus",
+                       "4" = "Ha",
+                       "5" = "Daniel",
+                       "6" = "Bauer",
+                       "7" = "Speasy",
+                       "8" = "Hubner",
+                       "9" = "Stumpf",
+                       "10" = "Patrick"
+                       )) %>% 
+  mutate(match_string = str_glue("{home} vs {away}"))
+```
+
+
+```{r}
+phrase_to_replace <-  "Heim"
+replacement <- str_glue('<span style="color:#9F3753">**{phrase_to_replace}**</span>')
+
+gt_schedule <- schedule %>% 
+  group_by(week) %>% 
+  mutate(id = row_number(),
+         cross_count = sum(matchup_type == "Cross")) %>% 
+  ungroup() %>% 
+  mutate(match_string = str_replace_all(match_string, phrase_to_replace, replacement)) %>% 
+  pivot_wider(id_cols = c(week,cross_count), values_from = match_string, names_from = id, names_prefix = "Match ") %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  fmt_markdown(everything()) %>% 
+  cols_align("center",contains("match")) %>% 
+  cols_label(
+    cross_count = "OOD"
+  ) %>% 
+  tab_footnote("Anzahl der Spiele 'Out of Division' in dieser Woche", cells_column_labels(cross_count)) %>% 
+  tab_header("Fantasy Football Schedule 2022",
+             subtitle = "subject to change")
+
+gt_schedule
+#gtsave_extra(gt_schedule, "export/schedule22/stc_schedule.png", expand = 0, zoom = 5)
+```
+
+```{r}
+gt_enemy <- schedule %>%
+  select(week, home=away, away=home) %>% 
+  bind_rows(schedule %>%  select(week, home, away)) %>% 
+  pivot_wider(id_cols = week, values_from = away, names_from = home) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  tab_header("Wochengegen für jeden Spieler",
+             subtitle = "Hier kann man Doppelgegner gut erkennen")
+  gt_highlight_cols(c(JB, `HA!`, Heim, Hoodie), alpha = .2, fill = "#9F3753")
+
+gt_enemy
+#gtsave_extra(gt_enemy, "export/schedule22/stc_week_enemy.png", expand = 0, zoom = 5)
+```
+
+```{r}
+schedule %>% count(matchup_type)
+```
+
+```{r}
+schedule %>% 
+  select(week:div_away) %>% 
+  write_csv("export/schedule22/schedule-juli.csv")
+```
+
+```{r}
+player_wl <- read_csv("data/ff-matchups-2017-2022.csv") %>% 
+  filter(year == 2021) %>% 
+  group_by(team_manager) %>% 
+  summarise(w = sum(win),
+            l = sum(loss))
+```
+
+
+```{r}
+ff22_sos <- schedule %>% 
+  select(week, home=away, away=home) %>% 
+  bind_rows(schedule %>%  select(week, home, away)) %>% 
+  filter(week <=5) %>% 
+  left_join(player_wl, by = c("away" = "team_manager")) %>% 
+  group_by(home) %>% 
+  summarise(enemy_wins = sum(w),
+            enemy_loss = sum(l)) %>% 
+  mutate(sos = enemy_wins / (enemy_wins + enemy_loss)) %>% 
+  arrange(sos)
+```
+
+```{r}
+gt_sos <- ff22_sos %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  fmt_number(sos, decimals = 3) %>% 
+  tab_options(column_labels.text_transform = "capitalize") %>% 
+  cols_label(
+    home = "Manager",
+    enemy_wins = "Win",
+    enemy_loss = "Loss",
+    sos = "SoS"
+  ) %>% 
+  tab_spanner("Gegner", 2:3) %>% 
+  tab_footnote(md("Wins bzw Losses letztes Jahr  
+               der diesjährigen Gegner"), cells_column_spanners()) %>% 
+  tab_header("FF Season 22: Strength of Schedule",
+             subtitle = md("für die ersten **5 Wochen**")) %>% 
+  gt_hulk_col_numeric(sos, reverse = T, trim = T)
+
+gt_sos
+gtsave_extra(gt_sos, "export/schedule22/gt_sos_f4.png", expand = 0, zoom = 5)
+```
+
+
+
+

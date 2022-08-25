@@ -1,0 +1,102 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+matches <- read_csv("data/ff-matchups-2017-2022.csv")
+history <- read_csv("data/ff-history-2017-2022.csv")
+
+owners_of_22 <- c("Hubner", "Bauer", "Ha", "Heim", "Daniel", "Markus", "Patrick", "Speasy", "Stumpf", "Marc")
+```
+
+```{r}
+gt_kicker <- history %>% 
+  #filter(year==2021) %>% 
+  mutate(win = team_score >= team_away_score) %>% 
+  filter(pos == "K") %>% 
+  group_by(player) %>% 
+  summarise(spiele = n(),
+            wins = sum(win),
+            pct = wins/spiele,
+            points_sum = sum(points),
+            maximum = max(points),
+            minimum = min(points),
+            avg = mean(points),
+            median = median(points)) %>% 
+  arrange(-spiele) %>% 
+  head(16) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  fmt_number(avg, decimals = 2) %>% 
+  fmt_number(points_sum, decimals = 0) %>% 
+  fmt_percent(pct) %>% 
+  gt_hulk_col_numeric(avg, trim = T) %>% 
+  gt_hulk_col_numeric(pct, trim = T) %>% 
+  cols_label(pct = "Winrate",
+             points_sum = "Gesamt") %>% 
+  tab_spanner("Fantasy Points",5:9) %>% 
+  tab_header("Die meistverwendeten Kicker in unserer Fantasy Liga",
+             subtitle = "Top 16 von 2017-2022")
+
+gtsave_extra(gt_kicker, "export/kicker-analysis/gt_kicker.png", expand = 0, zoom = 5)
+gt_kicker
+```
+
+```{r}
+avg_skillpoints <- history %>% 
+  group_by(player, year, pos) %>% 
+  summarise(games=n(),
+            across(c(points), list(min = min, max = max, median = median, avg = mean))) %>% 
+  filter(pos %in% c("FLEX", "WR", "RB")) %>% 
+  arrange(-points_avg) %>% 
+  ungroup()
+
+avg_skillpoints %>% 
+  filter(year==2021, games >= 7) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(between(points_avg,8,10))
+```
+
+```{r}
+gt_pos_avg <- history %>% 
+  group_by(year, pos) %>% 
+  mutate(pos = recode(pos, "FLX" = "FLEX")) %>% 
+  summarise(Durchschnitt = mean(points, na.rm = T),
+            Median = median(points, na.rm = T),
+            ) %>%
+  ungroup() %>% 
+  pivot_longer(Durchschnitt:Median) %>% 
+  pivot_wider(id_cols = c(year,name), values_from = value, names_from = pos) %>% 
+  group_by(name) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  fmt_number(3:10) %>% 
+  tab_spanner("Position", 3:10) %>% 
+  gt_highlight_cols(6, fill = "#6F295B", alpha = .3) %>% 
+  gt_highlight_cols(c(5,9,10), fill = "#0F4C81", alpha = .3) %>% 
+  tab_header("Durchschnittliche Punktzahl nach Position",
+             subtitle = "Kicker erzielen durchschnittlich die wenigsten Punkte")
+
+gtsave_extra(gt_pos_avg, "export/kicker-analysis/gt_pos_avg.png", expand = 0, zoom = 5)
+gt_pos_avg
+```
+
