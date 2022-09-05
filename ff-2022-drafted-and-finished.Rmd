@@ -1,0 +1,213 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+finishes_21 <- read_csv("data/draft-data-21/ff-finishes-21.csv")
+drafted_21 <- read_csv("data/draft-data-21/ff-draftdata-21.csv")
+``` 
+
+```{r}
+draftres_21 <- drafted_21 %>% 
+  left_join(finishes_21, by=c("player", "pos", "team"), suffix = c("_drafted", "_finished"))
+```
+
+```{r}
+color_pos <- . %>% 
+  mutate(pos = recode(pos,
+                      "QB" = '<span style="color:#C05E85"><b>QB</b></span>',
+                      "WR" = '<span style="color:#46A2CA"><b>WR</b></span>',
+                      "RB" = '<span style="color:#73C3A6"><b>RB</b></span>',
+                      "TE" = '<span style="color:#CC8C4A"><b>TE</b></span>'))
+
+color_pos_html <- . %>% 
+  mutate(pos_html = case_when(
+    pos == "QB" ~ html('<span style="color:#C05E85"><b>QB</b></span>'),
+    pos == "WR" ~ html('<span style="color:#46A2CA"><b>WR</b></span>'),
+    pos == "RB" ~ html('<span style="color:#73C3A6"><b>RB</b></span>'),
+    pos == "TE" ~ html('<span style="color:#CC8C4A"><b>TE</b></span>'),
+    TRUE ~ html(str_glue("{pos}"))
+  ))
+```
+
+
+```{r}
+gt_draftthird <- draftres_21 %>% 
+  head(30) %>% 
+  color_pos() %>% 
+  relocate(overall_drafted, .after = last_col()) %>% 
+  relocate(overall_finished, .after = last_col()) %>% 
+  relocate(points, .after = drafted_by) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  fmt_markdown(pos) %>% 
+  cols_label(
+    pos_rank_drafted = "Draft",
+    pos_rank_finished = "Finish",
+    overall_drafted = "Draft",
+    overall_finished = "Finish",
+    drafted_by = "Drafted By"
+  ) %>% 
+  tab_spanner("Overall", 10:11) %>% 
+  tab_spanner("Positional", 8:9) %>% 
+  tab_options(column_labels.text_transform = "capitalize") %>% 
+  gt_highlight_rows(rows = pos_rank_finished <= 5, fill = "#93C572", alpha = .3, font_weight = "normal") %>% 
+  tab_header("Draft Recap 2021: Wer hatte das goldene Händchen?",
+             subtitle = "Nur 8 der ersten 30 Picks gehörten am Ende des Jahres zu den Top 5 auf ihrer Position")
+
+gtsave_extra(gt_draftthird, "export/draftandfinish/gt_draftthird.png", expand = 0, zoom = 5)
+```
+
+```{r}
+finishes_21 %>% 
+  filter(pos == "TE")
+```
+
+
+```{r}
+gt_draftedbest <- draftres_21 %>% 
+  filter(pos != "K") %>% 
+  group_by(pos) %>% 
+  filter(pos_rank_finished <= 5) %>% 
+  arrange(pos_rank_finished) %>%
+  relocate(overall_drafted, .after = last_col()) %>% 
+  relocate(overall_finished, .after = last_col()) %>% 
+  relocate(points, .after = drafted_by) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  fmt_markdown(pos) %>% 
+  cols_label(
+    pos_rank_drafted = "Draft",
+    pos_rank_finished = "Finish",
+    overall_drafted = "Draft",
+    overall_finished = "Finish",
+    drafted_by = "Drafted By"
+  ) %>% 
+  tab_spanner("Overall", 10:11) %>% 
+  tab_spanner("Positional", 8:9) %>% 
+  tab_options(column_labels.text_transform = "capitalize") %>% 
+  gt_highlight_rows(rows = round >= 6, fill = "#FF7518", alpha = .18, font_weight = "normal") %>% 
+  tab_header("Draft Recap 2021: Wer konnte sich die besten Spieler sichern?",
+             subtitle = "7 der besten Spieler wurden in Runde 6 oder später gedraftet")
+
+gtsave_extra(gt_draftedbest, "export/draftandfinish/gt_draftedbest.png", expand = 0, zoom = 5) 
+```
+
+```{r}
+draftres_21 %>% 
+  filter(!pos %in% c("K", "DEF"), round <= 5) %>% 
+  group_by(drafted_by, pos) %>% 
+  summarise(across(c("overall_drafted" , "pos_rank_drafted", "overall_finished", "pos_rank_finished"),
+                   list(mean = ~ mean(.x, na.rm = T),
+                        n = ~n()))) %>% 
+  select(drafted_by,pos,contains("fini")) %>% 
+  pivot_wider(id_cols = drafted_by, names_from = pos, values_from = c(pos_rank_finished_n,pos_rank_finished_mean)) %>% 
+  janitor::clean_names() %>%
+  select(manager = drafted_by, contains("qb"),contains("wr"),contains("rb"),contains("te")) %>% 
+  ungroup() %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  tab_options(column_labels.text_transform = "capitalize") %>% 
+  cols_label(
+    pos_rank_finished_mean_qb = "Rank",
+    pos_rank_finished_mean_wr = "Rank",
+    pos_rank_finished_mean_rb = "Rank",
+    pos_rank_finished_mean_te = "Rank",
+    pos_rank_finished_n_qb = "Anzahl",
+    pos_rank_finished_n_wr = "Anzahl",
+    pos_rank_finished_n_rb = "Anzahl",
+    pos_rank_finished_n_te = "Anzahl",
+  ) %>% 
+  tab_spanner("Quarterback",2:3) %>% 
+  tab_spanner("Wide Receiver",4:5) %>% 
+  tab_spanner("Running Back",6:7) %>% 
+  tab_spanner("Tight End",8:9) %>% 
+  fmt_number(2:9, decimals = 0) %>% 
+  fmt_missing(everything(), missing_text = "-")
+
+```
+
+```{r}
+draft_name <- draftres_21 %>% 
+  head(10) %>% 
+  select(pick_oa = overall_drafted, drafter = drafted_by) %>% 
+  mutate(drafter = str_trunc(drafter, 12)) %>% 
+  mutate_all(.,~as.factor(.x))
+  
+
+draftres_21 %>% 
+  mutate(pick_oa = ifelse(round %% 2 == 0, 11 - pick, pick),
+         round = as.factor(round),
+         pick_oa = as.factor(pick_oa),
+         draft_label = str_glue("{player}\n{pos}{pos_rank_drafted}")) %>% 
+  left_join(draft_name, by = "pick_oa") %>% 
+  mutate(drafter = fct_reorder(drafter, overall_drafted, min)) %>% 
+  ggplot(aes(drafter, round)) +
+  geom_tile(aes(fill = pos)) + 
+  geom_text(aes(label = draft_label), family = "Roboto", size = 5) +
+  scale_y_discrete(limits = rev) + 
+  scale_x_discrete(position = "top") +
+  scale_fill_manual(values = c("#9A5F4E", "#7A7CB0", "#C05E85", "#73C3A6", "#CC8C4A", "#46A2CA")) +
+  labs(y = "Runde",
+       x = NULL) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "none",
+        axis.text.x = element_text(face = "bold"))
+```
+
+```{r}
+draftreview <- draftres_21 %>% 
+  arrange(pos_rank_finished) %>% 
+  group_by(pos) %>% 
+  mutate(rank_to_draft = row_number()) %>% 
+  ungroup() %>% 
+  select(player, pos, team, rank_to_draft, pos_rank_drafted)
+
+plot_drafthindsight <- draftres_21 %>% 
+  mutate(pick_oa = ifelse(round %% 2 == 0, 11 - pick, pick),
+         round = as.factor(round),
+         pick_oa = as.factor(pick_oa),
+         draft_label = str_glue("{player}\n{pos}{pos_rank_drafted}")) %>% 
+  left_join(draft_name, by = "pick_oa") %>% 
+  mutate(drafter = fct_reorder(drafter, overall_drafted, min)) %>% 
+  left_join(draftreview, by = c("pos", "pos_rank_drafted" = "rank_to_draft"),suffix = c("_actual", "_hindsight")) %>% 
+  mutate(draft_label = str_glue("{str_trunc(player_hindsight, 14)}\n{pos}{pos_rank_drafted_hindsight}")) %>% 
+  ggplot(aes(drafter, round)) +
+  geom_tile(aes(fill = pos)) + 
+  geom_text(aes(label = draft_label), family = "Roboto", size = 5) +
+  scale_y_discrete(limits = rev) + 
+  scale_x_discrete(position = "top") +
+  scale_fill_manual(values = c("#9A5F4E", "#7A7CB0", "#C05E85", "#73C3A6", "#CC8C4A", "#46A2CA")) +
+  labs(y = "Runde",
+       x = NULL) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "none",
+        axis.text.x = element_text(face = "bold")) +
+  labs(title = "Draft Recap 2021: Wie hätte der Draft im Nachhinein aussehen müssen?",
+       subtitle = "Draftboard, wenn an jeder Stelle die gleiche Position aber der Spieler mit dem besten Finish ausgewählt worden wäre")
+
+save_std_png(plot_drafthindsight, "export/draftandfinish/plot_drafthindsight.png", dpi = 500, width = 14, height = 14)
+```
+
+

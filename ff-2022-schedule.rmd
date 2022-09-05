@@ -167,7 +167,7 @@ schedule <- schedule_structure %>%
 
 
 ```{r}
-phrase_to_replace <-  "Heim"
+phrase_to_replace <-  "Heimsdsdsd"
 replacement <- str_glue('<span style="color:#9F3753">**{phrase_to_replace}**</span>')
 
 gt_schedule <- schedule %>% 
@@ -204,7 +204,7 @@ gt_enemy <- schedule %>%
   gt_highlight_cols(c(JB, `HA!`, Heim, Hoodie), alpha = .2, fill = "#9F3753")
 
 gt_enemy
-#gtsave_extra(gt_enemy, "export/schedule22/stc_week_enemy.png", expand = 0, zoom = 5)
+gtsave_extra(gt_enemy, "export/schedule22/schedule_22.png", expand = 0, zoom = 5)
 ```
 
 ```{r}
