@@ -24,7 +24,7 @@ theme_set(theme_hubnr())
 TODO TEXT SCHREIBEN
 
 ```{r}
-fpros <- read_csv("data/draft-bargain/ffpros-ranks-22-08-25.csv") %>% 
+fpros <- read_csv("data/draft-bargain/ffpros-ranks-22-09-05.csv") %>% 
   select(rank = 1, name = 3, pos = 5, team = 4) %>% 
   mutate(pos = str_remove(pos, "\\d+"),
          name = str_remove(name, "( II+)|( Jr.)"),
@@ -34,7 +34,7 @@ fpros <- read_csv("data/draft-bargain/ffpros-ranks-22-08-25.csv") %>%
          team = recode(team,"JAC" = "JAX"),
          pos = recode(pos,"DST" = "DEF"))
 
-underdog <- read_csv("data/draft-bargain/underdog-ranks-22-08-25.csv") %>% 
+underdog <- read_csv("data/draft-bargain/underdog-ranks-22-09-05.csv") %>% 
   select(rank = 7, name = 1, pos = 2, team = 3) %>% 
   mutate(
     team = ifelse(name == "Julio Jones", "TB", team),
@@ -44,7 +44,7 @@ underdog <- read_csv("data/draft-bargain/underdog-ranks-22-08-25.csv") %>%
                   "D.K. Metcalf" = "DK Metcalf")
   )
 
-sleeper <- read_csv("data/draft-bargain/sleeper-mock-ranks-2022-08-25.csv") %>% 
+sleeper <- read_csv("data/draft-bargain/sleeper-mock-ranks-2022-09-05.csv") %>% 
   filter(!team %in% c("QUES", "PUP"))
 ```
 
