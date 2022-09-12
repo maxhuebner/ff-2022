@@ -1,0 +1,116 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+ff_matchups <- read_csv("data/ff-matchups-2017-2022.csv")
+owners_of_22 <- c("Hubner", "Bauer", "Ha", "Heim", "Daniel", "Markus", "Patrick", "Speasy", "Stumpf", "Marc")
+```
+
+```{r}
+ff_points_scored <- ff_matchups %>% 
+  group_by(team_manager,team_away_manager) %>% 
+  summarise(
+    games = n(),
+    total_scored = sum(team_score),
+    avg_scored = mean(team_score),
+    min_scored = min(team_score),
+    max_scored = max(team_score),
+    total_away_scored = sum(team_away_score),
+    avg_away_scored = mean(team_away_score),
+    min_away_scored = min(team_away_score),
+    max_away_scored = max(team_away_score),
+  ) %>% 
+  ungroup()
+```
+
+```{r}
+q_manager <- "Patrick"
+
+ff_points_scored %>% 
+  filter(team_manager == q_manager, team_away_manager %in% owners_of_22) %>% 
+  arrange(-avg_scored) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  cols_label(
+    team_manager = "Manager",
+    team_away_manager = "Gegner",
+    games = "#Games",
+    total_scored = "Gesamt",
+    avg_scored = "Avg",
+    min_scored = "Min",
+    max_scored = "Max",
+    total_away_scored = "Gesamt",
+    avg_away_scored = "Avg",
+    min_away_scored = "Min",
+    max_away_scored = "Max",
+  ) %>% 
+  tab_options(row_group.text_transform = "capitalize", column_labels.text_transform = "capitalize") %>% 
+  tab_spanner(q_manager, 4:7) %>% 
+  tab_spanner("Gegner", 8:11) %>% 
+  fmt_number(4:11, decimals = 1) %>% 
+  tab_header(html(str_glue("Wie schlägt sich <span style='color:#6F295B'><b>{q_manager}</b></span> gegen den Rest der Liga?"))) %>% 
+  cols_hide(1)
+```
+
+```{r}
+ff_points_scored %>% 
+  filter(team_manager %in% owners_of_22,
+         team_away_manager %in% owners_of_22) %>% 
+  group_by(team_manager) %>% 
+  summarise(
+    games = sum(games),
+    total_scored = sum(total_scored),
+    avg_scored = mean(avg_scored),
+    min_scored = min(min_scored),
+    max_scored = max(max_scored),
+    total_away_scored = sum(total_away_scored),
+    avg_away_scored = mean(avg_away_scored),
+    min_away_scored = min(min_away_scored),
+    max_away_scored = max(max_away_scored)
+  ) %>% 
+  arrange(-avg_scored) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  cols_label(
+    team_manager = "Manager",
+    games = "#Games",
+    total_scored = "Gesamt",
+    avg_scored = "Avg",
+    min_scored = "Min",
+    max_scored = "Max",
+    total_away_scored = "Gesamt",
+    avg_away_scored = "Avg",
+    min_away_scored = "Min",
+    max_away_scored = "Max",
+  ) %>% 
+  tab_options(row_group.text_transform = "capitalize", column_labels.text_transform = "capitalize") %>% 
+  tab_spanner("Manager", 3:6) %>% 
+  tab_spanner("Gegner", 7:10) %>% 
+  fmt_number(3:10, decimals = 1) %>% 
+  gt_hulk_col_numeric(avg_scored, trim = T) %>% 
+  gt_hulk_col_numeric(avg_away_scored, trim = T, reverse = T) %>% 
+  tab_header("Wie viel wird im Durchschnitt gepunktet?",
+             subtitle = "Zeitraum 2017-2021, nur Spiele zwischen noch aktiven Managern gewertet")
+```
+
+
