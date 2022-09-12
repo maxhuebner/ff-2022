@@ -1,0 +1,167 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+
+library(nflreadr)
+library(ffscrapr)
+```
+
+```{r}
+# Sleeper Connection aufbauen
+ff_conn <- sleeper_connect(season = q_season, league_id = 845712878878208000)
+ff_league_rosters <- ff_rosters(ff_conn)
+```
+
+```{r}
+q_season <- 2022
+q_week <- 1
+q_franchise_id <- 2
+
+franch_name <- ff_franchises(ff_conn) %>% filter(franchise_id == q_franchise_id) %>% pull(franchise_name)
+```
+
+```{r}
+my_roster <- ff_league_rosters %>% 
+  filter(franchise_id == q_franchise_id) %>% 
+  rename(sleeper_id=player_id)
+```
+
+```{r}
+my_roster %>% 
+  anti_join(nflreadr::load_ff_playerids(), by = "sleeper_id")
+
+roster <- my_roster %>% 
+  left_join(nflreadr::load_ff_playerids(), by = "sleeper_id") %>% 
+  select(franchise_name, sleeper_id, player_name, pos, team = team.x, age = age.x, pfr_id,gsis_id, name , draft_year, draft_round, draft_pick, height, weight, college, db_season)
+
+```
+
+```{r}
+snap_counts <- load_snap_counts(seasons = q_season) %>% 
+  filter(week == q_week)
+
+ff_snapcounts <- roster %>% 
+  filter(!is.na(pfr_id)) %>% 
+  select(player_name, pos, team, pfr_id) %>% 
+  left_join(snap_counts, by = c("pfr_id" = "pfr_player_id")) %>% 
+  select(player = player_name,
+         pos,
+         team = team.x,
+         season,
+         week,
+         opponent,
+         offense_snaps,
+         offense_pct) %>% 
+  arrange(desc(offense_pct))
+```
+
+```{r}
+ff_snapcounts %>% 
+  filter(pos %in% c("WR", "TE", "RB", "QB")) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  cols_hide(c(season, week)) %>% 
+  tab_options(row_group.text_transform = "capitalize", column_labels.text_transform = "capitalize") %>% 
+  cols_label(
+    offense_snaps = "#Snaps",
+    offense_pct = "In %"
+  ) %>% 
+  fmt_percent(offense_pct, decimals = 0) %>% 
+  gt_hulk_col_numeric(offense_pct, trim = T, na.color = "white") %>% 
+  fmt_missing(everything(), missing_text = "-") %>% 
+  tab_header(html(str_glue("Team <span style='color:#B565A7'><b>{franch_name}</b></span>: Snap Counts")))
+```
+
+```{r}
+my_stats <- roster %>% 
+  filter(!is.na(gsis_id)) %>% 
+  left_join(load_ff_opportunity(), by = c("gsis_id" = "player_id"))
+
+my_boxscore <- my_stats %>% 
+  filter(pos %in% c("RB", "TE", "WR", "QB")) %>% 
+  select(player = player_name, pos, team, age, draft_year, draft_round, draft_pick, height, weight, college,
+         season, week,
+         pass_completions, pass_attempt, pass_yards_gained, pass_touchdown, pass_interception, pass_first_down,
+         receptions, rec_attempt, rec_yards_gained, rec_touchdown,rec_first_down,
+         rush_attempt, rush_yards_gained, rush_touchdown,rush_first_down, rush_fumble_lost,
+         total_fantasy_points)
+  
+my_boxscore %>% 
+  select(player, pos, team, pass_completions:total_fantasy_points) %>% 
+  arrange(pos) %>% 
+  mutate(across(pass_completions:total_fantasy_points, ~ifelse(. == 0, NA, .))) %>% 
+  group_by(pos) %>% 
+  group_modify(~ arrange(., desc(total_fantasy_points))) %>% 
+  gt() %>% 
+  cols_label(
+    pass_attempt = "Att",
+    pass_completions = "Comp",
+    pass_yards_gained = "Yds",
+    pass_touchdown = "TD",
+    pass_interception = "Int",
+    pass_first_down = "FD",
+    rec_attempt = "Tar",
+    receptions = "Rec",
+    rec_yards_gained = "Yds",
+    rec_touchdown = "TD",
+    rec_first_down = "FD",
+    rush_attempt = "Att",
+    rush_yards_gained = "Yrds",
+    rush_touchdown = "TD",
+    rush_first_down = "FD",
+    rush_fumble_lost = "Fum",
+    total_fantasy_points = "Fantasy"
+  ) %>% 
+  gt_theme_538() %>% 
+  tab_options(row_group.text_transform = "capitalize", column_labels.text_transform = "capitalize") %>% 
+  tab_spanner("Passing", 3:9) %>% 
+  tab_spanner("Receiving", 10:14) %>% 
+  tab_spanner("Rushing", 15:19) %>% 
+  tab_spanner("PPR", 20) %>% 
+  fmt_missing(everything(), missing_text = "-") %>% 
+  gt_color_rows(total_fantasy_points, palette = "ggsci::teal_material", na.color = "white") %>% 
+  tab_header(html(str_glue("Team <span style='color:#B565A7'><b>{franch_name}</b></span>: Box Score")))
+```
+
+```{r}
+roster %>% 
+  filter(!is.na(gsis_id)) %>% 
+  inner_join(load_injuries(), by = "gsis_id") %>% 
+  select(player = player_name, pos, team = team.x, age, report_primary_injury, report_secondary_injury, report_status, practice_primary_injury, practice_secondary_injury, practice_status, date_modified) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  tab_options(row_group.text_transform = "capitalize", column_labels.text_transform = "capitalize") %>% 
+  cols_label(
+    report_primary_injury = "Primary",
+    report_secondary_injury = "Secondary",
+    report_status = "Status",
+    practice_primary_injury = "Primary",
+    practice_secondary_injury = "Secondary",
+    practice_status = "Status",
+    date_modified = "Updated At"
+  ) %>%
+  fmt_missing(everything(), missing_text = "-") %>% 
+  tab_spanner("Report", 5:7) %>% 
+  tab_spanner("Practice", 8:10) %>% 
+  tab_header(html(str_glue("Team <span style='color:#B565A7'><b>{franch_name}</b></span>: Injury Update")))
+  
+```
+
