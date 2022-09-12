@@ -1,0 +1,145 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+ff_matches <- read_csv("data/ff-matches-2017-2022.csv")
+ff_history <- read_csv("data/ff-history-2017-2022.csv")
+ff_matchups <- read_csv("data/ff-matchups-2017-2022.csv")
+```
+
+
+```{r}
+player1 <- "Bauer"
+player2 <- "Hubner"
+players <- c(player1, player2)
+```
+
+```{r}
+matchup_history <- ff_matches %>% 
+  filter(manager_winner %in% players,
+         manager_loser %in% players)
+
+player1_wins <- matchup_history %>% count(manager_winner) %>% filter(manager_winner == player1) %>% pull()
+player2_wins <- matchup_history %>% count(manager_winner) %>% filter(manager_winner == player2) %>% pull()
+
+min_year <- min(matchup_history$year)
+max_year <- max(matchup_history$year)
+
+matchup_history %>% 
+  mutate(is_playoff_match = ifelse(is_playoff_match, emo::ji("check"), emo::ji("x"))) %>% 
+  select(-contains("team")) %>% 
+  relocate(score_winner, .after=manager_winner) %>% 
+  mutate(diff = score_winner - score_loser) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  cols_label(
+    is_playoff_match = "Playoffs?",
+    manager_winner = "Manager",
+    manager_loser = "Manager",
+    score_winner = "Punkte",
+    score_loser = "Punkte",
+    diff = "Differenz"
+  ) %>% 
+  tab_spanner("Winner", 4:5) %>% 
+  tab_spanner("Loser", 6:7) %>% 
+  gt_hulk_col_numeric(diff, trim=T) %>% 
+  tab_header(str_glue("All Time Record: {player1} ({player1_wins}) vs {player2} ({player2_wins})"),
+             subtitle = str_glue("Matchups von {min_year} bis {max_year}")) %>% 
+  tab_options(row_group.text_transform = "capitalize", column_labels.text_transform = "capitalize") %>% 
+  cols_align("center", is_playoff_match)
+```
+
+```{r}
+q_year <- 2020
+q_week <- 1
+
+spec_matchup <- ff_history %>% 
+  filter(year == q_year, week==q_week, team_manager %in% players) %>% 
+  select(pos, player, points, team) %>% 
+  pivot_wider(id_cols = pos, names_from = team, values_from = c(player, points)) %>% 
+  unnest(cols = 2:5) %>% 
+  rename("player1" = 2, "player2" = 3, "points1" = 4, "points2" = 5)
+
+spec_matchup %>% 
+  mutate(pos = recode(pos,
+                      "QB" = '<span style="color:#C05E85"><b>QB</b></span>',
+                      "WR" = '<span style="color:#46A2CA"><b>WR</b></span>',
+                      "RB" = '<span style="color:#73C3A6"><b>RB</b></span>',
+                      "TE" = '<span style="color:#CC8C4A"><b>TE</b></span>',#9395D0
+                      "FLEX" = '<span style="color:#46A2CA"><b>F</b></span><span style="color:#73C3A6"><b>LE</b></span><span style="color:#CC8C4A"><b>X</b></span>',
+                      "K" = '<span style="color:#9395D0"><b>K</b></span>',#
+                      "DEF" = '<span style="color:#9A5F4E"><b>DEF</b></span>')) %>% 
+  relocate(player2, .after = last_col()) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  cols_label(
+    player1 = "Player",
+    points1 = "Pts",
+    points2 = "Pts",
+    player2 = "Player"
+  ) %>% 
+  tab_spanner(player1, 2:3) %>% 
+  tab_spanner(player2, 4:5) %>% 
+  cols_align("right",2) %>% 
+  tab_row_group("Bench", rows = pos == "BN") %>% 
+  tab_row_group("Lineup", rows = pos != "BN") %>% 
+  tab_options(row_group.text_transform = "capitalize", column_labels.text_transform = "capitalize") %>%
+  tab_header(str_glue("{player1} vs {player2} - Woche {q_week}, Jahr {q_year}")) %>% 
+  fmt_markdown(pos) %>% 
+  summary_rows(columns = contains("points"),
+               groups = "Lineup",
+               fns = list(Gesamt = ~sum(.)),
+               missing_text = "") %>% 
+  summary_rows(columns = contains("points"),
+               groups = "Bench",
+               fns = list(Gesamt = ~sum(.)),
+               missing_text = "")
+```
+
+```{r}
+ff_highscore <- ff_history %>% 
+  filter(team_manager %in% players, team_away_manager %in% players) %>% 
+  mutate(pos = recode(pos, "FLX" = "FLEX")) %>% 
+  group_by(team_manager, pos) %>% 
+  arrange(desc(points)) %>% 
+  group_modify(~ head(.x, 3L)) %>% 
+  ungroup()
+  
+ff_highscore %>% 
+  filter(team_manager == player1) %>% 
+  select(pos, player, points, year, week) %>% 
+  group_by(pos) %>%  
+  gt() %>% 
+  gt_theme_538() %>% 
+  tab_header(str_glue("{player1}: Best Players vs. {player2}"))
+
+ff_highscore %>% 
+  filter(team_manager == player2) %>% 
+  select(pos, player, points, year, week) %>% 
+  group_by(pos) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  tab_header(str_glue("{player2}: Best Players vs. {player1}"))
+
+```
+
