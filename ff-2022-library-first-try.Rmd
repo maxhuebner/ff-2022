@@ -1,0 +1,86 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+library(ffscrapr)
+ff_conn <- sleeper_connect(season = 2022, league_id = 845712878878208000)
+```
+
+```{r}
+ff_summary <- ff_league(ff_conn)
+str(ff_summary)
+```
+
+```{r}
+ff_rosters <- ff_rosters(ff_conn)
+```
+
+```{r}
+player_values <- dp_values()
+
+player_ids <- dp_playerids() %>% 
+  select(sleeper_id, fantasypros_id)
+
+player_values <- player_values %>% 
+  left_join(player_ids, by = c("fp_id" = "fantasypros_id")) %>% 
+  select(sleeper_id,ecr_1qb,ecr_pos,value_1qb)
+
+ff_values <- ff_rosters %>% 
+  left_join(player_values, by = c("player_id"="sleeper_id")) %>% 
+  arrange(franchise_id,desc(value_1qb))
+```
+
+```{r}
+ff_value_summ <- ff_values %>% 
+  group_by(franchise_id, franchise_name, pos) %>% 
+  summarise(total_value = sum(value_1qb,na.rm = TRUE)) %>%
+  ungroup() %>% 
+  group_by(franchise_id,franchise_name) %>% 
+  mutate(team_value = sum(total_value)) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = pos, values_from = total_value) %>% 
+  arrange(desc(team_value)) %>% 
+  mutate_at(c("team_value","QB","RB","WR","TE"),~.x/sum(.x)) %>% 
+  mutate_at(c("team_value","QB","RB","WR","TE"),round, 3)
+
+ff_value_summ %>% 
+  select(Manager = franchise_name, Gesamtwert = team_value, QB, RB, TE, WR) %>% 
+  gt() %>% 
+  gt_theme_538()
+  
+```
+
+```{r}
+age_summary <- ff_values %>% 
+  group_by(franchise_id,pos) %>% 
+  mutate(position_value = sum(value_1qb,na.rm=TRUE)) %>% 
+  ungroup() %>% 
+  mutate(weighted_age = age*value_1qb/position_value,
+         weighted_age = round(weighted_age, 1)) %>% 
+  group_by(franchise_id,franchise_name,pos) %>% 
+  summarise(count = n(),
+            age = sum(weighted_age,na.rm = TRUE)) %>% 
+  pivot_wider(names_from = pos,
+              values_from = c(age,count))
+```
+
