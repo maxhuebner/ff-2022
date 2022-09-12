@@ -1,0 +1,56 @@
+---
+title: "Untitled"
+author: "Max Hübner"
+date: '2022-09-07'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+data <- read_csv("data/ff-history-2017-2022.csv") %>% filter(year== 2018, week==16)
+```
+
+```{r}
+matchup <- data %>% 
+  filter(str_detect(team, "Unlim|DJ")) %>% 
+  select(pos, player, points, team) %>% 
+  pivot_wider(id_cols = pos, names_from = team, values_from = c(player, points)) %>% 
+  unnest(cols = c(`player_Unlimited Power`, `player_DJ-CMC`, `points_Unlimited Power`, 
+    `points_DJ-CMC`)) %>% 
+  janitor::clean_names()
+```
+
+
+```{r}
+matchup %>% 
+  relocate(player_dj_cmc, .after = last_col()) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  cols_label(
+    player_unlimited_power = "Player",
+    points_unlimited_power = "Pts",
+    points_dj_cmc = "Pts",
+    player_dj_cmc = "Player"
+  ) %>% 
+  tab_spanner("Hoodie", 2:3) %>% 
+  tab_spanner("Heim", 4:5) %>% 
+  cols_align("right",2) %>% 
+  tab_row_group("Bench", rows = pos == "BN") %>% 
+  tab_row_group("Lineup", rows = pos != "BN") %>% 
+  tab_header("Heims Lucky Punch 2018")
+```
+
