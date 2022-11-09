@@ -25,15 +25,15 @@ library(ffscrapr)
 ```
 
 ```{r}
-# Sleeper Connection aufbauen
-ff_conn <- sleeper_connect(season = q_season, league_id = 845712878878208000)
-ff_league_rosters <- ff_rosters(ff_conn)
-```
-
-```{r}
 q_season <- 2022
 q_week <- 1
 q_franchise_id <- 2
+```
+
+```{r}
+# Sleeper Connection aufbauen
+ff_conn <- sleeper_connect(season = q_season, league_id = 845712878878208000)
+ff_league_rosters <- ff_rosters(ff_conn)
 
 franch_name <- ff_franchises(ff_conn) %>% filter(franchise_id == q_franchise_id) %>% pull(franchise_name)
 ```
@@ -138,7 +138,8 @@ my_boxscore %>%
   tab_spanner("PPR", 20) %>% 
   fmt_missing(everything(), missing_text = "-") %>% 
   gt_color_rows(total_fantasy_points, palette = "ggsci::teal_material", na.color = "white") %>% 
-  tab_header(html(str_glue("Team <span style='color:#B565A7'><b>{franch_name}</b></span>: Box Score")))
+  tab_header(html(str_glue("Team <span style='color:#B565A7'><b>{franch_name}</b></span>: Box Score")),
+             subtitle = str_glue("Season {q_season}, Week {q_week}"))
 ```
 
 ```{r}
@@ -161,7 +162,106 @@ roster %>%
   fmt_missing(everything(), missing_text = "-") %>% 
   tab_spanner("Report", 5:7) %>% 
   tab_spanner("Practice", 8:10) %>% 
-  tab_header(html(str_glue("Team <span style='color:#B565A7'><b>{franch_name}</b></span>: Injury Update")))
+  tab_header(html(str_glue("Team <span style='color:#B565A7'><b>{franch_name}</b></span>: Injury Update")),
+             subtitle = str_glue("Season {q_season}, Week {q_week}"))
   
 ```
+
+```{r}
+my_nextgen_rec <- roster %>% 
+  filter(!is.na(gsis_id)) %>% 
+  inner_join(nflreadr::load_nextgen_stats(stat_type = "receiving") %>% 
+              filter(season == q_season, week ==q_week),
+            by = c("gsis_id" = "player_gsis_id")) %>% 
+  select(player_name:age,avg_cushion:avg_yac_above_expectation)
+
+my_nextgen_rush <- roster %>% 
+  filter(!is.na(gsis_id)) %>% 
+  inner_join(nflreadr::load_nextgen_stats(stat_type = "rushing") %>% 
+              filter(season == q_season, week ==q_week),
+            by = c("gsis_id" = "player_gsis_id")) %>% 
+  select(player_name:age,efficiency:rush_touchdowns)
+
+my_nextgen_pass <- roster %>% 
+  filter(!is.na(gsis_id)) %>% 
+  inner_join(nflreadr::load_nextgen_stats(stat_type = "passing") %>% 
+              filter(season == q_season, week ==q_week),
+            by = c("gsis_id" = "player_gsis_id")) %>% 
+  select(player_name:age,avg_time_to_throw:max_air_distance)
+```
+
+```{r}
+nextgen_gt <- . %>% 
+  pivot_longer(4:last_col(), names_to = "metric") %>% 
+  pivot_wider(id_cols = metric, values_from = value, names_from = player_name) %>% 
+  mutate(metric = str_to_title(str_replace_all(metric, "_"," "))) %>% 
+  arrange(metric) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  tab_options(row_group.text_transform = "capitalize", column_labels.text_transform = "capitalize") %>% 
+  fmt_number(2:last_col()) %>% 
+  fmt_percent(2:last_col(), rows = str_detect(metric, "ercen"), scale_values = F)
+```
+
+```{r}
+my_nextgen_rec %>% 
+  nextgen_gt() %>% 
+  fmt_number(2:last_col(),decimals = 0, rows = c(9:12)) %>% 
+  tab_header(html(str_glue("Team <span style='color:#B565A7'><b>{franch_name}
+                           </b></span>: NFL Advanced Stats - <b>Receiving</b>")),
+             subtitle = str_glue("Season {q_season}, Week {q_week}"))
+
+my_nextgen_rush %>% 
+  nextgen_gt() %>% 
+  fmt_number(2:last_col(),decimals = 0, rows = c(7,9,10)) %>% 
+  tab_header(html(str_glue("Team <span style='color:#B565A7'><b>{franch_name}
+                           </b></span>: NFL Advanced Stats - <b>Rushing</b>")),
+             subtitle = str_glue("Season {q_season}, Week {q_week}"))
+
+my_nextgen_pass %>% 
+  nextgen_gt() %>% 
+  fmt_number(2:last_col(),decimals = 0, rows = c(18,17,14,12)) %>% 
+  tab_header(html(str_glue("Team <span style='color:#B565A7'><b>{franch_name}
+                           </b></span>: NFL Advanced Stats - <b>Passing</b>")),
+             subtitle = str_glue("Season {q_season}, Week {q_week}"))
+  
+```
+
+```{r}
+game_id_start <- paste0(q_season,"_",ifelse(q_week < 10, paste0("0", q_week), q_week))
+
+week_participation <- load_participation() %>% 
+  filter(str_starts(nflverse_game_id, game_id_start)) %>% 
+  mutate(gsis_id = str_split(offense_players, ";")) %>% 
+  unnest_longer(gsis_id)
+
+roster_participation <- roster %>% 
+  inner_join(week_participation, by = "gsis_id")
+
+roster_formation <- roster_participation %>%
+  filter(pos %in% c("WR", "TE", "RB", "QB")) %>% 
+  add_count(player_name, name = "total") %>%
+  count(player_name, pos, team, offense_formation, total) %>% 
+  replace_na(list(offense_formation = "UNKNOWN")) %>% 
+  mutate(pct = n / total) %>% 
+  pivot_wider(id_cols = c(player_name, pos, team), names_from = offense_formation, values_from = pct) %>% 
+  relocate(UNKNOWN, .after = last_col()) %>% 
+  arrange(pos)
+```
+
+```{r}
+roster_formation %>%
+  group_by(pos) %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  tab_options(row_group.text_transform = "capitalize", column_labels.text_transform = "capitalize") %>% 
+  fmt_missing(everything(), missing_text = "-") %>% 
+  fmt_percent(EMPTY:UNKNOWN) %>% 
+  cols_label(player_name = "Player") %>% 
+  tab_spanner("Formation", 4:10) %>% 
+  tab_header(html(str_glue("Team <span style='color:#B565A7'><b>{franch_name}
+                           </b></span>: Offensive Formations")),
+             subtitle = str_glue("Season {q_season}, Week {q_week}"))
+```
+
 

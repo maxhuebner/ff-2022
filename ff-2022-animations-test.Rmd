@@ -1,0 +1,166 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+
+library(gganimate)
+```
+
+```{r}
+ff_history <- read_csv("data/ff-history-2017-2022.csv")
+```
+
+```{r}
+ff_history %>% 
+  group_by(player,pos) %>% 
+  summarise(pts = sum(points)) %>% 
+  arrange(desc(pts))
+```
+
+```{r}
+top20 <- ff_history %>% 
+  filter(year == 2021) %>% 
+  group_by(player,pos) %>% 
+  summarise(pts = sum(points)) %>% 
+  arrange(desc(pts)) %>% 
+  head(20)
+```
+
+```{r}
+ff_history %>% 
+  filter(year == 2021,
+         player %in% top20$player
+         ) %>% 
+  #mutate(player = fct_rev(factor(player, levels = top20$player))) %>% 
+  ggplot(aes(points, player)) +
+  geom_col()
+```
+
+
+```{r}
+ranked_by_week <- ff_history %>% 
+  filter(year == 2021) %>% 
+  select(year, week, player, pos, points) %>% 
+  group_by(week) %>% 
+  arrange(week, -points) %>% 
+  mutate(rank = 1:n()) %>% 
+  filter(rank <= 10)
+```
+
+```{r}
+myplot <- ranked_by_week %>% 
+  ggplot() +
+  aes(xmin = 0,
+      xmax = points) +
+  aes(ymin = rank -.45,
+      ymax = rank + .45,
+      y = rank) + 
+  facet_wrap(~week) + 
+  geom_rect(alpha = .7) + 
+  aes(fill = pos) +
+  scale_fill_viridis_d(option = "magma", direction = -1) + 
+  scale_x_continuous(
+    limits = c(-40,60),
+    breaks = c(0,10,20,30,40,50,60)
+  ) + 
+  geom_text(
+    col = "gray13",
+    hjust = "right",
+    aes(label = player), x = -3, family = "Roboto", size = 4) + 
+  scale_y_reverse()
+
+myplot
+```
+
+```{r}
+myplot +
+  facet_null() + 
+  geom_text(x = 50, y = -10, family = "Roboto",
+            aes(label = as.character(week)),
+            size = 15, col = "grey18") + 
+  aes(group = player) +
+  transition_time(week)
+```
+
+```{r}
+player_cum <- ff_history %>% 
+  complete(year, week, player, fill = list(points = 0)) %>% 
+  group_by(year,week) %>% 
+  arrange(year, week) %>% 
+  mutate(week_id = cur_group_id()) %>% 
+  ungroup() %>% 
+  group_by(player) %>% 
+  arrange(week_id) %>% 
+  mutate(cum_points = cumsum(points)) %>% 
+  ungroup()
+
+cum_ranked_by_week <- player_cum %>% 
+  select(week_id, year, week, player, pos, cum_points) %>% 
+  group_by(week_id) %>% 
+  arrange(week_id, -cum_points) %>% 
+  mutate(rank = 1:n()) %>% 
+  filter(rank <= 10)
+```
+
+```{r}
+cum_plot <- cum_ranked_by_week %>% 
+  ggplot() +
+  aes(xmin = 0,
+      xmax = cum_points) +
+  aes(ymin = rank -.45,
+      ymax = rank + .45,
+      y = rank) + 
+  facet_wrap(~week_id) + 
+  geom_rect(alpha = .7) + 
+  #aes(fill = pos) +
+  #scale_fill_viridis_d(option = "magma", direction = -1) + 
+  scale_x_continuous(
+    limits = c(-300,1400),
+    breaks = c(0,400,800,1200)
+  ) + 
+  geom_text(
+    col = "gray13",
+    hjust = "right",
+    aes(label = player), x = -30, family = "Roboto", size = 4) + 
+  scale_y_reverse()
+
+cum_plot
+```
+
+```{r}
+anim <- cum_plot +
+  facet_null() +
+  scale_x_continuous(
+    limits = c(-300,1600),
+    breaks = c(0,400,800,1200,1600)
+  ) + 
+  geom_text(x = 1450, y = -9.5,
+            family = "Roboto",
+            aes(label = paste0(year, " - ", week)),
+            size = 5, col = "grey18") + 
+  aes(group = player) +
+  transition_time(week_id) +
+  ease_aes('cubic-in-out')
+```
+
+```{r}
+animate(anim, duration = 60, fps = 15)
+```
+

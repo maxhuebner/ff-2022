@@ -1,0 +1,107 @@
+---
+title: "Template Title"
+author: 
+  name: "Max Hübner"
+  url: https://maxhuebner.github.io/
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(scales)
+library(hubnR)
+
+library(gt)
+library(gtExtras)
+
+theme_set(theme_hubnr())
+```
+
+```{r}
+ff_matchups <- read_csv("data/ff-matchups-2017-2022.csv")
+owners_of_22 <- c("Hubner", "Bauer", "Ha", "Heim", "Daniel", "Markus", "Patrick", "Speasy", "Stumpf", "Marc")
+```
+
+```{r}
+team_names <- tribble(
+  ~team, ~team_manager,
+  "TheRealBauer", "Bauer", 
+  "Hubner", "Hubner",        
+  "MarkusEXperte", "Markus", 
+  "MKx", "Marc",            
+  "Hammichan", "Ha",     
+  "Blitzkoerper85", "Heim",
+  "Wolverine88", "Daniel",    
+  "StumpfistTrumpf", "Stumpf",
+  "Speasy", "Speasy",         
+  "AllTimeReadyPat", "Patrick"
+)
+
+data_22 <- read_csv("data/ff22-2.csv") %>% 
+  left_join(team_names, by = "team") %>% 
+  left_join(team_names, by = c(team_away = "team")) %>% 
+  select(team_manager=team_manager.x, team_away_manager=team_manager.y, team_score = total_score) %>% 
+  distinct()
+```
+
+
+```{r}
+best_performance <- ff_matchups %>% 
+  bind_rows(data_22) %>% 
+  filter(team_manager %in% owners_of_22,
+         team_away_manager %in% owners_of_22) %>% 
+  group_by(team_away_manager,team_manager) %>% 
+  summarise(best = max(team_score)) %>% 
+  ungroup() %>% 
+  pivot_wider(id_cols = team_away_manager, names_from = team_manager, values_from = best) %>% 
+  relocate(last_col(), .after = team_away_manager) %>% 
+  mutate(gesamt = rowSums(across(where(is.numeric)), na.rm = T))
+```
+
+```{r}
+best_performance %>% 
+  gt() %>% 
+  gt_theme_538() %>% 
+  tab_options(column_labels.text_transform = "capitalize") %>% 
+  fmt_missing(everything(), missing_text = "-") %>% 
+  fmt_number(2:12, decimals = 0) %>% 
+  cols_label(
+    team_away_manager = "Manager",
+    gesamt = "Summe"
+  ) %>% 
+  tab_spanner("Gegner", 2:11) %>% 
+  gt_hulk_col_numeric(12, trim = T) %>% 
+  tab_header("Die beste Performance gegen diesen Gegner?",
+             subtitle = "Season 2017-2022 Woche 2 | Orange Markierung wurden in dieser Season erzielt") %>% 
+  gt_highlight_rows(rows = 2, columns = 7, fill = "#FF9B49", alpha = .7) %>% 
+  gt_highlight_rows(rows = 3, columns = 5, fill = "#FF9B49", alpha = .7) %>% 
+  gt_highlight_rows(rows = 5, columns = 10, fill = "#FF9B49", alpha = .7) %>% 
+  gt_highlight_rows(rows = 6, columns = 8, fill = "#FF9B49", alpha = .7) %>% 
+  gt_highlight_rows(rows = 7, columns = 7, fill = "#FF9B49", alpha = .7) %>% 
+  gt_highlight_rows(rows = 10, columns = 9, fill = "#FF9B49", alpha = .7)
+```
+
+```{r}
+ff_matchups %>% 
+  bind_rows(data_22) %>% 
+  filter(team_manager %in% owners_of_22,
+         team_away_manager %in% owners_of_22) %>% 
+  group_by(team_away_manager,team_manager) %>% 
+  summarise(best = max(team_score)) %>% 
+  ungroup() %>% 
+  rename(team_score = best) %>% 
+  inner_join(data_22)
+```
+
+
+```{r}
+ff_matchups %>% 
+  filter(team_manager == "Bauer",
+         team_away_manager %in% c("Heim", "Ha", "Hubner")) %>% 
+  arrange(-team_score)
+```
+

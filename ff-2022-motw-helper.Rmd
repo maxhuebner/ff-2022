@@ -24,20 +24,44 @@ theme_set(theme_hubnr())
 ```{r}
 ff_matches <- read_csv("data/ff-matches-2017-2022.csv")
 ff_history <- read_csv("data/ff-history-2017-2022.csv")
-ff_matchups <- read_csv("data/ff-matchups-2017-2022.csv")
+ff_matchups <- read_csv("data/ff-matchups-2017-2022.csv") %>% 
+  group_by(year, team_manager) %>% 
+  arrange(team_manager, year ,week) %>% 
+  mutate(w_record = cumsum(win),
+         l_record = week - w_record,
+         record = str_glue("{w_record}-{l_record}")) %>% 
+  ungroup()
+```
+
+```{r}
+ff_record <- ff_matchups %>% 
+  group_by(year, team_manager) %>% 
+  arrange(team_manager, year ,week) %>% 
+  mutate(w_record = cumsum(win),
+         l_record = week - w_record,
+         record = str_glue("{w_record}-{l_record}")) %>% 
+  ungroup() %>% 
+  select(year,week, team_manager, record)
 ```
 
 
+
 ```{r}
-player1 <- "Bauer"
-player2 <- "Hubner"
+player1 <- "Patrick"
+player2 <- "Ha"
 players <- c(player1, player2)
+
+first_player <- sort(players) %>% .[1]
+second_player <- rev(sort(players)) %>% .[1]
 ```
 
 ```{r}
 matchup_history <- ff_matches %>% 
   filter(manager_winner %in% players,
-         manager_loser %in% players)
+         manager_loser %in% players) %>% 
+  left_join(ff_record, by = c("year", "week", "manager_winner" = "team_manager")) %>% 
+  left_join(ff_record, by = c("year", "week", "manager_loser" = "team_manager"), suffix = c("", "_loser")) %>% 
+  rename(record_winner = record)
 
 player1_wins <- matchup_history %>% count(manager_winner) %>% filter(manager_winner == player1) %>% pull()
 player2_wins <- matchup_history %>% count(manager_winner) %>% filter(manager_winner == player2) %>% pull()
@@ -46,9 +70,11 @@ min_year <- min(matchup_history$year)
 max_year <- max(matchup_history$year)
 
 matchup_history %>% 
-  mutate(is_playoff_match = ifelse(is_playoff_match, emo::ji("check"), emo::ji("x"))) %>% 
+  #mutate(is_playoff_match = ifelse(is_playoff_match, emo::ji("check"), emo::ji("x"))) %>%
+  mutate(is_playoff_match = ifelse(is_playoff_match, "Yes", "No")) %>% 
   select(-contains("team")) %>% 
   relocate(score_winner, .after=manager_winner) %>% 
+  relocate(record_winner, .before = manager_loser) %>% 
   mutate(diff = score_winner - score_loser) %>% 
   gt() %>% 
   gt_theme_538() %>% 
@@ -58,10 +84,12 @@ matchup_history %>%
     manager_loser = "Manager",
     score_winner = "Punkte",
     score_loser = "Punkte",
-    diff = "Differenz"
+    diff = "Differenz",
+    record_winner = "Record",
+    record_loser = "Record"
   ) %>% 
-  tab_spanner("Winner", 4:5) %>% 
-  tab_spanner("Loser", 6:7) %>% 
+  tab_spanner("Winner", 4:6) %>% 
+  tab_spanner("Loser", 7:9) %>% 
   gt_hulk_col_numeric(diff, trim=T) %>% 
   tab_header(str_glue("All Time Record: {player1} ({player1_wins}) vs {player2} ({player2_wins})"),
              subtitle = str_glue("Matchups von {min_year} bis {max_year}")) %>% 
@@ -71,12 +99,13 @@ matchup_history %>%
 
 ```{r}
 q_year <- 2020
-q_week <- 1
+q_week <- 9
 
 spec_matchup <- ff_history %>% 
   filter(year == q_year, week==q_week, team_manager %in% players) %>% 
-  select(pos, player, points, team) %>% 
-  pivot_wider(id_cols = pos, names_from = team, values_from = c(player, points)) %>% 
+  select(pos, player, points, team_manager) %>% 
+  arrange(team_manager) %>% 
+  pivot_wider(id_cols = pos, names_from = team_manager, values_from = c(player, points)) %>% 
   unnest(cols = 2:5) %>% 
   rename("player1" = 2, "player2" = 3, "points1" = 4, "points2" = 5)
 
@@ -98,8 +127,8 @@ spec_matchup %>%
     points2 = "Pts",
     player2 = "Player"
   ) %>% 
-  tab_spanner(player1, 2:3) %>% 
-  tab_spanner(player2, 4:5) %>% 
+  tab_spanner(first_player, 2:3) %>% 
+  tab_spanner(second_player, 4:5) %>% 
   cols_align("right",2) %>% 
   tab_row_group("Bench", rows = pos == "BN") %>% 
   tab_row_group("Lineup", rows = pos != "BN") %>% 
@@ -143,3 +172,15 @@ ff_highscore %>%
 
 ```
 
+```{r}
+ff_matchups %>% 
+  filter(team_manager == player1) %>% 
+  group_by(team_away_manager == player2) %>% 
+  summarise(across(team_score:team_away_score, ~mean(.x)))
+
+ff_matchups %>% 
+  filter(team_manager == player2) %>% 
+  group_by(team_away_manager == player1) %>% 
+  summarise(across(team_score:team_away_score, ~mean(.x)))
+
+```
